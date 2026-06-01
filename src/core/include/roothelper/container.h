@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_CONTAINER_H_
-#define ROOT_HELPER_CONTAINER_H_
+#ifndef ROOTHELPER_CONTAINER_H_
+#define ROOTHELPER_CONTAINER_H_
 
 #include <TAxis.h>
 #include <TDirectory.h>
@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-#ifndef ROOT_HELPER_USED_IN_INTERPRETER
-#include <ROOT_helper/graphics.h>
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#include <roothelper/graphics.h>
 #endif
 
 namespace roothelper {
@@ -279,4 +279,4 @@ std::vector<ObjectType*> MultiObject::get_object_list() const {
 
 }  // namespace roothelper
 
-#endif  // ROOT_HELPER_CONTAINER_H_
+#endif  // ROOTHELPER_CONTAINER_H_

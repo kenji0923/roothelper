@@ -8,10 +8,10 @@
 void rootlogon()
 {
     /**
-     * Modify this to the installed path of ROOT_helper
+     * Modify this to the installed path of roothelper
      */
-    const char* ROOT_helper_include_path = "-I/usr/local/include/ROOT_helper";
+    const char* roothelper_include_path = "-I/usr/local/include/roothelper";
 
-    gInterpreter->AddIncludePath(ROOT_helper_include_path);
-    gSystem->AddIncludePath(ROOT_helper_include_path);
+    gInterpreter->AddIncludePath(roothelper_include_path);
+    gSystem->AddIncludePath(roothelper_include_path);
 }

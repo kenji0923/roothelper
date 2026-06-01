@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_USED_IN_INTERPRETER
-#include <ROOT_helper/data_saver.h>
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#include <roothelper/data_saver.h>
 #endif
 
 #include <TCanvas.h>

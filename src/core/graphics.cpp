@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_USED_IN_INTERPRETER
-#include <ROOT_helper/graphics.h>
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#include <roothelper/graphics.h>
 #endif
 
 #include <TCanvas.h>

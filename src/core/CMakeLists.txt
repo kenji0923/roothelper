@@ -38,19 +38,19 @@ target_link_libraries(ROOThelper INTERFACE
 target_sources(ROOThelper PUBLIC
     FILE_SET header
     TYPE HEADERS
-    BASE_DIRS include/ROOT_helper
+    BASE_DIRS include/roothelper
     FILES
-	include/ROOT_helper/data_saver.h
-	include/ROOT_helper/graphics.h
-	include/ROOT_helper/container.h
-	include/ROOT_helper/analysis.h
+	include/roothelper/data_saver.h
+	include/roothelper/graphics.h
+	include/roothelper/container.h
+	include/roothelper/analysis.h
 )
 target_sources(ROOThelper PUBLIC
     FILE_SET top_header_for_interpreter
     TYPE HEADERS
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../
     FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/../ROOT_helper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../roothelper.h
 )
 target_sources(ROOThelper PUBLIC
     FILE_SET source_for_interpreter

@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_DATA_SAVER_H_
-#define ROOT_HELPER_DATA_SAVER_H_
+#ifndef ROOTHELPER_DATA_SAVER_H_
+#define ROOTHELPER_DATA_SAVER_H_
 
 #include <TCanvas.h>
 #include <TClass.h>
@@ -84,4 +84,4 @@ void DataSaver::save_object(ObjectType* obj,
 
 }  // namespace roothelper
 
-#endif  // ROOT_HELPER_DATA_SAVER_H_
+#endif  // ROOTHELPER_DATA_SAVER_H_

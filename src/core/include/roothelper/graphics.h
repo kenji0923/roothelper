@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_GRAPHICS_H_
-#define ROOT_HELPER_GRAPHICS_H_
+#ifndef ROOTHELPER_GRAPHICS_H_
+#define ROOTHELPER_GRAPHICS_H_
 
 #include <TAxis.h>
 #include <TCanvas.h>
@@ -240,4 +240,4 @@ TLatex* draw_latex_ndc(double x0, double y0, const std::string& content);
 
 }  // namespace roothelper
 
-#endif  // ROOT_HELPER_GRAPHICS_H_
+#endif  // ROOTHELPER_GRAPHICS_H_

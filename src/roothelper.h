@@ -2,10 +2,10 @@
 // This wrapper is used only for an installed package.
 // For interpreter setup, see auxiliary/rootlogon.C.
 
-#ifndef ROOT_HELPER_SRC_INTERPRETER_H_
-#define ROOT_HELPER_SRC_INTERPRETER_H_
+#ifndef ROOTHELPER_SRC_INTERPRETER_H_
+#define ROOTHELPER_SRC_INTERPRETER_H_
 
-#define ROOT_HELPER_USED_IN_INTERPRETER
+#define ROOTHELPER_USED_IN_INTERPRETER
 
 #include "analysis.h"
 #include "container.h"
@@ -16,4 +16,4 @@
 #include "src/data_saver.cpp"
 #include "src/graphics.cpp"
 
-#endif  // ROOT_HELPER_SRC_INTERPRETER_H_
+#endif  // ROOTHELPER_SRC_INTERPRETER_H_

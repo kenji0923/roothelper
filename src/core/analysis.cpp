@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_USED_IN_INTERPRETER
-#include <ROOT_helper/analysis.h>
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#include <roothelper/analysis.h>
 #endif
 
 #include <TAxis.h>

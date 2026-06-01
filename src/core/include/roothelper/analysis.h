@@ -1,5 +1,5 @@
-#ifndef ROOT_HELPER_ANALYSIS_H_
-#define ROOT_HELPER_ANALYSIS_H_
+#ifndef ROOTHELPER_ANALYSIS_H_
+#define ROOTHELPER_ANALYSIS_H_
 
 #include <TAxis.h>
 #include <TGraphErrors.h>
@@ -14,4 +14,4 @@ TGraphErrors* get_graph_g0xa_plus_g1(double a, const TGraphErrors* g0, const TGr
 
 }  // namespace roothelper
 
-#endif  // ROOT_HELPER_ANALYSIS_H_
+#endif  // ROOTHELPER_ANALYSIS_H_

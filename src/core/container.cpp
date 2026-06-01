@@ -1,6 +1,6 @@
-#ifndef ROOT_HELPER_USED_IN_INTERPRETER
-#include <ROOT_helper/container.h>
-#include <ROOT_helper/graphics.h>
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#include <roothelper/container.h>
+#include <roothelper/graphics.h>
 #endif
 
 #include <TAxis.h>
