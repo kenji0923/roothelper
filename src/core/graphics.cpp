@@ -72,7 +72,7 @@ void prepare() {
   g_latex.SetTextSize(GraphicsSize::current.text_size * 0.8);
 }
 
-std::pair<unsigned int, unsigned int> get_default_n_pad(unsigned int n_plot) {
+std::pair<unsigned int, unsigned int> getDefaultNPad(unsigned int n_plot) {
   if (n_plot <= 1) {
     return {1, 1};
   } else if (n_plot <= 2) {
@@ -88,7 +88,7 @@ std::pair<unsigned int, unsigned int> get_default_n_pad(unsigned int n_plot) {
   return {4, 3};
 }
 
-TCanvas* create_canvas(const std::string& name, const std::string& title, unsigned int n_pad_x,
+TCanvas* createCanvas(const std::string& name, const std::string& title, unsigned int n_pad_x,
                        unsigned int n_pad_y, unsigned int each_size_x, unsigned int each_size_y) {
   const double w = n_pad_x * each_size_x;
   const double h = n_pad_y * each_size_y;
@@ -103,14 +103,14 @@ TCanvas* create_canvas(const std::string& name, const std::string& title, unsign
   return c;
 }
 
-TCanvas* create_canvas_with_default_pad_matrix(const std::string& name, const std::string& title,
+TCanvas* createCanvasWithDefaultPadMatrix(const std::string& name, const std::string& title,
                                                unsigned int n_pad, unsigned int each_size_x,
                                                unsigned int each_size_y) {
-  auto [n_pad_x, n_pad_y] = get_default_n_pad(n_pad);
-  return create_canvas(name, title, n_pad_x, n_pad_y, each_size_x, each_size_y);
+  auto [n_pad_x, n_pad_y] = getDefaultNPad(n_pad);
+  return createCanvas(name, title, n_pad_x, n_pad_y, each_size_x, each_size_y);
 }
 
-Color_t get_color_in_ring(unsigned int index) {
+Color_t getColorInRing(unsigned int index) {
   switch (index) {
     case 0:
       return kAzure + 2;
@@ -127,21 +127,21 @@ Color_t get_color_in_ring(unsigned int index) {
   }
 }
 
-double increase_top_margin(double scale) {
+double increaseTopMargin(double scale) {
   const double current = gPad->GetTopMargin();
   const double next = std::max(0.0, current + scale * GraphicsSize::current.margin_step_vertcical);
   gPad->SetTopMargin(next);
   return next;
 }
 
-double increase_right_margin(double scale) {
+double increaseRightMargin(double scale) {
   const double current = gPad->GetRightMargin();
   const double next = std::max(0.0, current + scale * GraphicsSize::current.margin_step_horizontal);
   gPad->SetRightMargin(next);
   return next;
 }
 
-TLegend* put_legend(LegendPosition leg_pos, Option_t* option, double width, double height) {
+TLegend* putLegend(LegendPosition leg_pos, Option_t* option, double width, double height) {
   gPad->Update();
 
   const Double_t top_edge = 1.0 - gPad->GetTopMargin() - 0.02;
@@ -174,7 +174,7 @@ TLegend* put_legend(LegendPosition leg_pos, Option_t* option, double width, doub
   return leg;
 }
 
-double GetMaxLabelWidthNDC(TAxis* axis) {
+double getMaxLabelWidthNdc(TAxis* axis) {
   if (axis == nullptr || gPad == nullptr) {
     return 0.0;
   }
@@ -250,12 +250,12 @@ double GetMaxLabelWidthNDC(TAxis* axis) {
   return static_cast<double>(max_w) / (gPad->GetWw() * gPad->GetWNDC());
 }
 
-void OptimizeYAxisLayout(TAxis* y_axis) {
+void optimizeYAxisLayout(TAxis* y_axis) {
   if (y_axis == nullptr || gPad == nullptr) {
     return;
   }
 
-  const double label_width = GetMaxLabelWidthNDC(y_axis);
+  const double label_width = getMaxLabelWidthNdc(y_axis);
   const double tick_length = y_axis->GetTickLength();
   const double title_size = y_axis->GetTitleSize();
   const double gap = 0.010;
@@ -270,16 +270,16 @@ void OptimizeYAxisLayout(TAxis* y_axis) {
   }
 }
 
-double GetYaxisLabelWidthNDC(IContainerWrapper* /*obj*/) { return 0.0; }
+double getYaxisLabelWidthNdc(IContainerWrapper* /*obj*/) { return 0.0; }
 
-TLine* draw_horizontal_line(double y) {
+TLine* drawHorizontalLine(double y) {
   gPad->Update();
   TLine* l = new TLine(gPad->GetUxmin(), y, gPad->GetUxmax(), y);
   l->Draw("SAME");
   return l;
 }
 
-TLine* draw_vertical_line(double x) {
+TLine* drawVerticalLine(double x) {
   gPad->Update();
   TLine* l = new TLine(x, gPad->GetUymin(), x, gPad->GetUymax());
   l->Draw("SAME");
@@ -288,19 +288,19 @@ TLine* draw_vertical_line(double x) {
 
 namespace publish {
 
-TMultiGraph* set_graph_colors_by_ring(TMultiGraph* mg) {
+TMultiGraph* setGraphColorsByRing(TMultiGraph* mg) {
   set_colors_by_ring<TGraph>(mg->GetListOfGraphs());
   return mg;
 }
 
-TMultiGraph* set_graph_marker_styles_by_ring(TMultiGraph* mg) {
+TMultiGraph* setGraphMarkerStylesByRing(TMultiGraph* mg) {
   set_marker_styles_by_ring<TGraph>(mg->GetListOfGraphs());
   return mg;
 }
 
 }  // namespace publish
 
-TMultiGraph* set_multigraph_axis_from_member(TMultiGraph* mg) {
+TMultiGraph* setMultigraphAxisFromMember(TMultiGraph* mg) {
   TList* list = mg->GetListOfGraphs();
   for (auto* obj : *list) {
     TGraph* g = static_cast<TGraph*>(obj);
@@ -322,7 +322,7 @@ TMultiGraph* set_multigraph_axis_from_member(TMultiGraph* mg) {
   return mg;
 }
 
-double find_x(const TGraph* g, double y, double x_start, double x_end) {
+double findX(const TGraph* g, double y, double x_start, double x_end) {
   if (x_start >= x_end) {
     x_start = *std::min_element(g->GetX(), g->GetX() + g->GetN());
     x_end = *std::max_element(g->GetX(), g->GetX() + g->GetN());
@@ -347,7 +347,7 @@ double find_x(const TGraph* g, double y, double x_start, double x_end) {
   return x;
 }
 
-TLatex* draw_latex_ndc(double x0, double y0, const std::string& content) {
+TLatex* drawLatexNdc(double x0, double y0, const std::string& content) {
   return g_latex.DrawLatexNDC(x0, y0, content.c_str());
 }
 

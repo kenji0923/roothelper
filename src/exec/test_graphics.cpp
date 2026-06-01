@@ -43,18 +43,18 @@ int main(int argc, char** argv)
 TCanvas* create_test_canvas(std::string canvas_name)
 {
     canvas_name = std::string("c_") + canvas_name;
-    TCanvas* c = rh::create_canvas(canvas_name.c_str(), canvas_name.c_str());
+    TCanvas* c = rh::createCanvas(canvas_name.c_str(), canvas_name.c_str());
 
     TF1* f_wave = new TF1("f_wave", [](const double* x, const double* p){ return p[0] * TMath::Sin(TMath::TwoPi() * p[1] * x[0]); }, 0, 1, 2);
-    f_wave->SetLineColor(rh::get_color_in_ring(0));
+    f_wave->SetLineColor(rh::getColorInRing(0));
     f_wave->SetParameters(1, 4);
     f_wave->Draw("L");
-    rh::set_axes(f_wave);
+    rh::setAxes(f_wave);
     f_wave->GetXaxis()->SetTitle("xyzABC (arb. units)");
     f_wave->GetYaxis()->SetTitle("yzxBCA (arb. units)");
-    std::cout << rh::increase_right_margin(1) << std::endl;
+    std::cout << rh::increaseRightMargin(1) << std::endl;
 
-    data_saver.write_canvas(c);
+    data_saver.writeCanvas(c);
 
     return c;
 }

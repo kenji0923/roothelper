@@ -21,7 +21,7 @@
 
 namespace roothelper {
 
-std::vector<std::string> get_object_path_from_directories(
+std::vector<std::string> getObjectPathFromDirectories(
     const std::string& object_name, const std::vector<std::string>& directory_list);
 
 class ObjectList {
@@ -30,21 +30,21 @@ class ObjectList {
   ~ObjectList();
 
   template <class ObjectType>
-  int load_data(TDirectory* directory, const std::vector<std::string>& path_list,
+  int loadData(TDirectory* directory, const std::vector<std::string>& path_list,
                 const std::vector<std::string>& title_list = {});
 
-  int get_list_size() const { return object_list_.size(); }
-  const std::vector<TObject*>& get_object_list() const { return object_list_; }
+  int getListSize() const { return object_list_.size(); }
+  const std::vector<TObject*>& getObjectList() const { return object_list_; }
 
   template <class ObjectType>
-  std::vector<ObjectType*> get_converted_object_list() const;
+  std::vector<ObjectType*> getConvertedObjectList() const;
 
   template <class ObjectType>
-  ObjectType* get_object(int i) const {
+  ObjectType* getObject(int i) const {
     return dynamic_cast<ObjectType*>(object_list_.at(i));
   }
 
-  std::string get_title(int i) const { return title_list_.at(i); }
+  std::string getTitle(int i) const { return title_list_.at(i); }
 
   std::string list_name_;
 
@@ -56,7 +56,7 @@ class ObjectList {
 };
 
 template <class ObjectType>
-int ObjectList::load_data(TDirectory* directory, const std::vector<std::string>& path_list,
+int ObjectList::loadData(TDirectory* directory, const std::vector<std::string>& path_list,
                           const std::vector<std::string>& title_list) {
   const int n_obj = path_list.size();
 
@@ -84,7 +84,7 @@ int ObjectList::load_data(TDirectory* directory, const std::vector<std::string>&
 }
 
 template <class ObjectType>
-std::vector<ObjectType*> ObjectList::get_converted_object_list() const {
+std::vector<ObjectType*> ObjectList::getConvertedObjectList() const {
   std::vector<ObjectType*> converted_object_list;
   for (auto* obj : object_list_) {
     converted_object_list.emplace_back(static_cast<ObjectType*>(obj));
@@ -101,7 +101,7 @@ struct IContainerWrapper {
   virtual TAxis* GetYaxis() = 0;
   virtual double GetMinimum() = 0;
   virtual double GetMaximum() = 0;
-  virtual std::vector<TObject*> get_object_list() const = 0;
+  virtual std::vector<TObject*> getObjectList() const = 0;
 };
 
 namespace container_wrapper_internal {
@@ -111,11 +111,11 @@ struct DefaultOptions {};
 
 template <>
 struct DefaultOptions<TMultiGraph> {
-  int get_list_size(TMultiGraph* container) const {
+  int getListSize(TMultiGraph* container) const {
     return container->GetListOfGraphs()->GetSize();
   }
-  TList* get_list(TMultiGraph* container) const { return container->GetListOfGraphs(); }
-  TGraph* get_type_specified_obj(TObject* obj) const { return static_cast<TGraph*>(obj); }
+  TList* getList(TMultiGraph* container) const { return container->GetListOfGraphs(); }
+  TGraph* getTypeSpecifiedObj(TObject* obj) const { return static_cast<TGraph*>(obj); }
 
   std::string add = "P";
   std::string draw = "A";
@@ -123,16 +123,16 @@ struct DefaultOptions<TMultiGraph> {
 
 template <>
 struct DefaultOptions<THStack> {
-  int get_list_size(THStack* container) const { return container->GetHists()->GetSize(); }
-  TList* get_list(THStack* container) const { return container->GetHists(); }
-  TH1* get_type_specified_obj(TObject* obj) const { return static_cast<TH1*>(obj); }
+  int getListSize(THStack* container) const { return container->GetHists()->GetSize(); }
+  TList* getList(THStack* container) const { return container->GetHists(); }
+  TH1* getTypeSpecifiedObj(TObject* obj) const { return static_cast<TH1*>(obj); }
 
   std::string add = "HIST";
   std::string draw = "NOSTACK";
 };
 
 template <class ContainerType>
-void set_default_add_option_if_null(std::string& option) {
+void setDefaultAddOptionIfNull(std::string& option) {
   if (option.empty()) {
     DefaultOptions<ContainerType> defaults;
     option = defaults.add;
@@ -140,7 +140,7 @@ void set_default_add_option_if_null(std::string& option) {
 }
 
 template <class ContainerType>
-void set_default_draw_option_if_null(std::string& option) {
+void setDefaultDrawOptionIfNull(std::string& option) {
   if (option.empty()) {
     DefaultOptions<ContainerType> defaults;
     option = defaults.draw;
@@ -162,7 +162,7 @@ struct ContainerWrapper : IContainerWrapper {
   double GetMinimum() override;
   double GetMaximum() override;
 
-  std::vector<TObject*> get_object_list() const override;
+  std::vector<TObject*> getObjectList() const override;
 
   ContainerType* container_;
 
@@ -182,22 +182,22 @@ ContainerWrapper<ContainerType>::~ContainerWrapper() {
 
 template <class ContainerType>
 void ContainerWrapper<ContainerType>::Add(TObject* obj, std::string option) {
-  container_wrapper_internal::set_default_add_option_if_null<ContainerType>(option);
+  container_wrapper_internal::setDefaultAddOptionIfNull<ContainerType>(option);
 
-  auto* specified_obj = defaults_.get_type_specified_obj(obj);
+  auto* specified_obj = defaults_.getTypeSpecifiedObj(obj);
   container_->Add(specified_obj, option.c_str());
   container_->SetTitle(Form("%s;%s;%s", container_->GetName(),
                             specified_obj->GetXaxis()->GetTitle(),
                             specified_obj->GetYaxis()->GetTitle()));
 
-  const Color_t color = get_color_in_ring(defaults_.get_list_size(container_) - 1);
+  const Color_t color = getColorInRing(defaults_.getListSize(container_) - 1);
   specified_obj->SetMarkerColor(color);
   specified_obj->SetLineColor(color);
 }
 
 template <class ContainerType>
 void ContainerWrapper<ContainerType>::Draw(std::string option) {
-  container_wrapper_internal::set_default_draw_option_if_null<ContainerType>(option);
+  container_wrapper_internal::setDefaultDrawOptionIfNull<ContainerType>(option);
   container_->Draw(option.c_str());
 }
 
@@ -222,10 +222,10 @@ double ContainerWrapper<ContainerType>::GetMaximum() {
 }
 
 template <class ContainerType>
-std::vector<TObject*> ContainerWrapper<ContainerType>::get_object_list() const {
+std::vector<TObject*> ContainerWrapper<ContainerType>::getObjectList() const {
   container_wrapper_internal::DefaultOptions<ContainerType> defaults;
   std::vector<TObject*> object_list;
-  TList* list = defaults.get_list(container_);
+  TList* list = defaults.getList(container_);
 
   for (auto* obj : *list) {
     object_list.emplace_back(obj);
@@ -250,10 +250,10 @@ class MultiObject {
   ContainerType* get_container() const;
 
   template <class ObjectType>
-  std::vector<ObjectType*> get_object_list() const;
+  std::vector<ObjectType*> getObjectList() const;
 
  private:
-  void initialize_container(const std::string& nametitle);
+  void initializeContainer(const std::string& nametitle);
 
   MultiObjectType object_type_;
   IContainerWrapper* container_ = nullptr;
@@ -266,9 +266,9 @@ ContainerType* MultiObject::get_container() const {
 }
 
 template <class ObjectType>
-std::vector<ObjectType*> MultiObject::get_object_list() const {
+std::vector<ObjectType*> MultiObject::getObjectList() const {
   std::vector<ObjectType*> object_list;
-  const std::vector<TObject*> abs_obj_list = container_->get_object_list();
+  const std::vector<TObject*> abs_obj_list = container_->getObjectList();
 
   for (auto* obj : abs_obj_list) {
     object_list.emplace_back(dynamic_cast<ObjectType*>(obj));

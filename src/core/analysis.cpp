@@ -11,7 +11,7 @@
 
 namespace roothelper {
 
-TH1* scale_histo_x(TH1* h, double scale) {
+TH1* scaleHistoX(TH1* h, double scale) {
   const int n_bin = h->GetXaxis()->GetNbins();
   const double x_min = h->GetXaxis()->GetBinLowEdge(1);
   const double x_max = h->GetXaxis()->GetBinUpEdge(n_bin);
@@ -20,7 +20,7 @@ TH1* scale_histo_x(TH1* h, double scale) {
   return h;
 }
 
-TH1* convert_to_density_histo(TH1* h) {
+TH1* convertToDensityHisto(TH1* h) {
   const int n_bin = h->GetXaxis()->GetNbins();
   const double integral = h->Integral();
 
@@ -33,7 +33,7 @@ TH1* convert_to_density_histo(TH1* h) {
   return h;
 }
 
-TGraphErrors* get_graph_g0xa_plus_g1(double a, const TGraphErrors* g0, const TGraphErrors* g1) {
+TGraphErrors* getGraphG0xAPlusG1(double a, const TGraphErrors* g0, const TGraphErrors* g1) {
   const int n_data = g0->GetN();
   if (n_data != g1->GetN()) {
     throw std::runtime_error(

@@ -24,10 +24,10 @@ DataSaver::DataSaver(const std::filesystem::path& base_directory, bool is_recrea
 
 DataSaver::~DataSaver() { f_write_->Save(); }
 
-void DataSaver::write_canvas(TCanvas* c,
+void DataSaver::writeCanvas(TCanvas* c,
                              const std::filesystem::path& relative_save_directory) const {
   write_canvas_without_data_saving(c, relative_save_directory);
-  save_object(c, relative_save_directory);
+  saveObject(c, relative_save_directory);
 }
 
 void DataSaver::write_canvas_without_data_saving(
@@ -50,7 +50,7 @@ std::filesystem::path DataSaver::create_directories(
   return created_path;
 }
 
-void DataSaver::create_and_change_directory(
+void DataSaver::createAndChangeDirectory(
     const std::filesystem::path& relative_save_directory) const {
   std::filesystem::create_directories(base_directory_ / relative_save_directory);
 
