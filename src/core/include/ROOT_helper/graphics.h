@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-namespace ROOT_helper {
+namespace roothelper {
 
 class IContainerWrapper;
 
@@ -238,6 +238,6 @@ TGraph* convert_graph_yaxis(TGraph** g, ConverterType conversion_expr, const std
 
 TLatex* draw_latex_ndc(double x0, double y0, const std::string& content);
 
-}  // namespace ROOT_helper
+}  // namespace roothelper
 
 #endif  // ROOT_HELPER_GRAPHICS_H_

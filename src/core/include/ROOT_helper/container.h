@@ -19,7 +19,7 @@
 #include <ROOT_helper/graphics.h>
 #endif
 
-namespace ROOT_helper {
+namespace roothelper {
 
 std::vector<std::string> get_object_path_from_directories(
     const std::string& object_name, const std::vector<std::string>& directory_list);
@@ -277,6 +277,6 @@ std::vector<ObjectType*> MultiObject::get_object_list() const {
   return object_list;
 }
 
-}  // namespace ROOT_helper
+}  // namespace roothelper
 
 #endif  // ROOT_HELPER_CONTAINER_H_

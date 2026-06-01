@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <memory>
 
-namespace ROOT_helper {
+namespace roothelper {
 
 DataSaver::DataSaver(const std::filesystem::path& base_directory, bool is_recreate)
     : base_directory_(base_directory) {
@@ -66,4 +66,4 @@ void DataSaver::create_and_change_directory(
   root_directory->cd();
 }
 
-}  // namespace ROOT_helper
+}  // namespace roothelper

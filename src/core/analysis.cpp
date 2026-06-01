@@ -9,7 +9,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace ROOT_helper {
+namespace roothelper {
 
 TH1* scale_histo_x(TH1* h, double scale) {
   const int n_bin = h->GetXaxis()->GetNbins();
@@ -77,4 +77,4 @@ TGraphErrors* get_graph_g0xa_plus_g1(double a, const TGraphErrors* g0, const TGr
   return g_sum;
 }
 
-}  // namespace ROOT_helper
+}  // namespace roothelper

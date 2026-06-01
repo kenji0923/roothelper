@@ -7,7 +7,7 @@
 #include <TMath.h>
 
 
-namespace rh = ROOT_helper;
+namespace rh = roothelper;
 
 
 TCanvas* create_test_canvas(std::string canvas_name, const unsigned int n_pad_x=1, const unsigned int n_pad_y=1);

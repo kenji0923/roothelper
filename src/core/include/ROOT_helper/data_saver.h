@@ -16,7 +16,7 @@
 #include <memory>
 #include <vector>
 
-namespace ROOT_helper {
+namespace roothelper {
 
 class DataSaver {
  public:
@@ -82,6 +82,6 @@ void DataSaver::save_object(ObjectType* obj,
   }
 }
 
-}  // namespace ROOT_helper
+}  // namespace roothelper
 
 #endif  // ROOT_HELPER_DATA_SAVER_H_

@@ -24,7 +24,7 @@
 #include <regex>
 #include <utility>
 
-namespace ROOT_helper {
+namespace roothelper {
 namespace {
 
 TLatex g_latex;
@@ -351,4 +351,4 @@ TLatex* draw_latex_ndc(double x0, double y0, const std::string& content) {
   return g_latex.DrawLatexNDC(x0, y0, content.c_str());
 }
 
-}  // namespace ROOT_helper
+}  // namespace roothelper
