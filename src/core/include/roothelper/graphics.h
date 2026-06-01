@@ -53,28 +53,28 @@ inline const GraphicsSize kGraphicsSize10pt = {
 inline const GraphicsSize g_size_8pt = kGraphicsSize8pt;
 inline const GraphicsSize g_size_10pt = kGraphicsSize10pt;
 
-void prepare();
+void Prepare();
 
-std::pair<unsigned int, unsigned int> getDefaultNPad(unsigned int n_plot);
+std::pair<unsigned int, unsigned int> GetDefaultNPad(unsigned int n_plot);
 
-TCanvas* createCanvas(const std::string& name, const std::string& title, unsigned int n_pad_x = 1,
+TCanvas* CreateCanvas(const std::string& name, const std::string& title, unsigned int n_pad_x = 1,
                        unsigned int n_pad_y = 1,
                        unsigned int each_size_x = GraphicsSize::current.pad_pixel_w,
                        unsigned int each_size_y = GraphicsSize::current.pad_pixel_h);
 
-TCanvas* createCanvasWithDefaultPadMatrix(
+TCanvas* CreateCanvasWithDefaultPadMatrix(
     const std::string& name, const std::string& title, unsigned int n_pad = 1,
     unsigned int each_size_x = GraphicsSize::current.pad_pixel_h,
     unsigned int each_size_y = GraphicsSize::current.pad_pixel_h);
 
-Color_t getColorInRing(unsigned int index);
+Color_t GetColorInRing(unsigned int index);
 
-double increaseTopMargin(double scale = 1.0);
+double IncreaseTopMargin(double scale = 1.0);
 
-double increaseRightMargin(double scale = 1.0);
+double IncreaseRightMargin(double scale = 1.0);
 
 template <class GraphType>
-double increaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
+double IncreaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
   const double current = gPad->GetLeftMargin();
   const double next = std::max(0.0, current + scale * GraphicsSize::current.margin_step_horizontal);
 
@@ -88,11 +88,11 @@ double increaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
 
 enum class LegendPosition { TopLeft, TopRight, BottomRight, BottomLeft };
 
-TLegend* putLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.3,
+TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.3,
                     double height = 0.2);
 
 template <class GraphType>
-void setXAxis(GraphType* graph_object) {
+void SetXAxis(GraphType* graph_object) {
   gPad->SetRightMargin(GraphicsSize::current.right_margin);
   gPad->SetBottomMargin(GraphicsSize::current.bottom_margin);
 
@@ -105,12 +105,12 @@ void setXAxis(GraphType* graph_object) {
   axis->CenterTitle();
 }
 
-double getMaxLabelWidthNdc(TAxis* axis);
-void optimizeYAxisLayout(TAxis* y_axis);
-double getYaxisLabelWidthNdc(IContainerWrapper* obj);
+double GetMaxLabelWidthNdc(TAxis* axis);
+void OptimizeYAxisLayout(TAxis* y_axis);
+double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
 template <class GraphType>
-void setYAxis(GraphType* graph_object) {
+void SetYAxis(GraphType* graph_object) {
   TAxis* axis = graph_object->GetYaxis();
   gPad->SetTopMargin(GraphicsSize::current.top_margin);
 
@@ -120,39 +120,39 @@ void setYAxis(GraphType* graph_object) {
   axis->SetDecimals(true);
   axis->CenterTitle();
 
-  optimizeYAxisLayout(axis);
+  OptimizeYAxisLayout(axis);
 }
 
 template <class GraphType>
-void setAxes(GraphType* graph_object) {
+void SetAxes(GraphType* graph_object) {
   gPad->Update();
-  setXAxis(graph_object);
-  setYAxis(graph_object);
+  SetXAxis(graph_object);
+  SetYAxis(graph_object);
   gPad->Modified();
   gPad->Update();
 }
 
-TLine* drawHorizontalLine(double y);
-TLine* drawVerticalLine(double x);
+TLine* DrawHorizontalLine(double y);
+TLine* DrawVerticalLine(double x);
 
 namespace publish {
 
 template <class GraphType>
-void setMaxDigitX(GraphType* graph_object) {
+void SetMaxDigitX(GraphType* graph_object) {
   gPad->SetRightMargin(0.11);
   TAxis* axis = graph_object->GetXaxis();
   axis->SetMaxDigits(3);
 }
 
 template <class GraphType>
-void setMaxDigitY(GraphType* graph_object) {
+void SetMaxDigitY(GraphType* graph_object) {
   gPad->SetTopMargin(0.075);
   TAxis* axis = graph_object->GetYaxis();
   axis->SetMaxDigits(3);
 }
 
 template <class GraphType>
-void setTimeXAxis(GraphType* graph_object) {
+void SetTimeXAxis(GraphType* graph_object) {
   gPad->SetRightMargin(0.05);
   gPad->SetBottomMargin(0.19);
 
@@ -169,23 +169,23 @@ void setTimeXAxis(GraphType* graph_object) {
 }
 
 template <class GraphType>
-void setYAxisFullWidth(GraphType* graph_object) {
+void SetYAxisFullWidth(GraphType* graph_object) {
   gPad->SetLeftMargin(0.185);
   TAxis* axis = graph_object->GetYaxis();
   axis->SetTitleOffset(1.4);
 }
 
-TMultiGraph* setGraphColorsByRing(TMultiGraph* mg);
-TMultiGraph* setGraphMarkerStylesByRing(TMultiGraph* mg);
+TMultiGraph* SetGraphColorsByRing(TMultiGraph* mg);
+TMultiGraph* SetGraphMarkerStylesByRing(TMultiGraph* mg);
 
 }  // namespace publish
 
-TMultiGraph* setMultigraphAxisFromMember(TMultiGraph* mg);
+TMultiGraph* SetMultigraphAxisFromMember(TMultiGraph* mg);
 
-double findX(const TGraph* g, double y, double x_start = 0.0, double x_end = 0.0);
+double FindX(const TGraph* g, double y, double x_start = 0.0, double x_end = 0.0);
 
 template <class ObjectType>
-std::vector<TCanvas*> drawWithAutoRecreatorOfCanvas(
+std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(
     const char* canvas_name_title, size_t n_pad_x, size_t n_pad_y,
     const std::vector<ObjectType*>& object_list, const char* draw_option) {
   std::vector<TCanvas*> c_list;
@@ -213,7 +213,7 @@ std::vector<TCanvas*> drawWithAutoRecreatorOfCanvas(
 }
 
 template <class T, class ObjectType>
-std::vector<TCanvas*> drawWithAutoRecreatorOfCanvas(const char* canvas_name_title,
+std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(const char* canvas_name_title,
                                                          size_t n_pad_x, size_t n_pad_y,
                                                          const std::map<T, ObjectType*>& object_map,
                                                          const char* draw_option) {
@@ -222,12 +222,12 @@ std::vector<TCanvas*> drawWithAutoRecreatorOfCanvas(const char* canvas_name_titl
     object_list.push_back(pair.second);
   }
 
-  return drawWithAutoRecreatorOfCanvas(canvas_name_title, n_pad_x, n_pad_y, object_list,
+  return DrawWithAutoRecreatorOfCanvas(canvas_name_title, n_pad_x, n_pad_y, object_list,
                                             draw_option);
 }
 
 template <class ConverterType>
-TGraph* convertGraphYaxis(TGraph** g, ConverterType conversion_expr, const std::string& y_title) {
+TGraph* ConvertGraphYaxis(TGraph** g, ConverterType conversion_expr, const std::string& y_title) {
   for (size_t i = 0; i < (*g)->GetN(); ++i) {
     (*g)->GetY()[i] = conversion_expr((*g)->GetY()[i]);
   }
@@ -236,7 +236,7 @@ TGraph* convertGraphYaxis(TGraph** g, ConverterType conversion_expr, const std::
   return *g;
 }
 
-TLatex* drawLatexNdc(double x0, double y0, const std::string& content);
+TLatex* DrawLatexNdc(double x0, double y0, const std::string& content);
 
 }  // namespace roothelper
 

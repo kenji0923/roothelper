@@ -18,7 +18,7 @@ rh::DataSaver data_saver("GraphicsTest");
 
 int main(int argc, char** argv)
 {
-    rh::prepare();
+    rh::Prepare();
 
     /**
      * Single pad.
@@ -43,18 +43,18 @@ int main(int argc, char** argv)
 TCanvas* create_test_canvas(std::string canvas_name)
 {
     canvas_name = std::string("c_") + canvas_name;
-    TCanvas* c = rh::createCanvas(canvas_name.c_str(), canvas_name.c_str());
+    TCanvas* c = rh::CreateCanvas(canvas_name.c_str(), canvas_name.c_str());
 
     TF1* f_wave = new TF1("f_wave", [](const double* x, const double* p){ return p[0] * TMath::Sin(TMath::TwoPi() * p[1] * x[0]); }, 0, 1, 2);
-    f_wave->SetLineColor(rh::getColorInRing(0));
+    f_wave->SetLineColor(rh::GetColorInRing(0));
     f_wave->SetParameters(1, 4);
     f_wave->Draw("L");
-    rh::setAxes(f_wave);
+    rh::SetAxes(f_wave);
     f_wave->GetXaxis()->SetTitle("xyzABC (arb. units)");
     f_wave->GetYaxis()->SetTitle("yzxBCA (arb. units)");
-    std::cout << rh::increaseRightMargin(1) << std::endl;
+    std::cout << rh::IncreaseRightMargin(1) << std::endl;
 
-    data_saver.writeCanvas(c);
+    data_saver.WriteCanvas(c);
 
     return c;
 }

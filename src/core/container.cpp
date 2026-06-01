@@ -15,7 +15,7 @@
 
 namespace roothelper {
 
-std::vector<std::string> getObjectPathFromDirectories(
+std::vector<std::string> GetObjectPathFromDirectories(
     const std::string& object_name, const std::vector<std::string>& directory_list) {
   std::vector<std::string> path_list;
 
@@ -34,7 +34,7 @@ MultiObject::MultiObject(MultiObjectType object_type, const std::string& nametit
                          TDirectory* directory, const std::vector<std::string>& object_name,
                          const std::string& add_option)
     : object_type_(object_type) {
-  initializeContainer(nametitle);
+  InitializeContainer(nametitle);
 
   const int n_obj = object_name.size();
   object_.resize(n_obj);
@@ -50,7 +50,7 @@ MultiObject::MultiObject(MultiObjectType object_type, const std::string& nametit
 MultiObject::MultiObject(MultiObjectType object_type, const std::string& nametitle,
                          std::vector<TObject*> obj_list, const std::string& add_option)
     : object_type_(object_type) {
-  initializeContainer(nametitle);
+  InitializeContainer(nametitle);
 
   const int n_obj = obj_list.size();
   object_.resize(n_obj);
@@ -66,10 +66,10 @@ MultiObject::~MultiObject() { delete container_; }
 
 void MultiObject::Draw(std::string option) {
   container_->Draw(option);
-  setAxes(container_);
+  SetAxes(container_);
 }
 
-void MultiObject::initializeContainer(const std::string& nametitle) {
+void MultiObject::InitializeContainer(const std::string& nametitle) {
   if (object_type_ == MultiObjectType::Graph) {
     container_ = new ContainerWrapper<TMultiGraph>(nametitle.c_str());
   } else if (object_type_ == MultiObjectType::Histo) {

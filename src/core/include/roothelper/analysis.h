@@ -6,11 +6,11 @@
 
 namespace roothelper {
 
-TH1* scaleHistoX(TH1* h, double scale);
+TH1* ScaleHistoX(TH1* h, double scale);
 
-TH1* convertToDensityHisto(TH1* h);
+TH1* ConvertToDensityHisto(TH1* h);
 
-TGraphErrors* getGraphG0xAPlusG1(double a, const TGraphErrors* g0, const TGraphErrors* g1);
+TGraphErrors* GetGraphG0xAPlusG1(double a, const TGraphErrors* g0, const TGraphErrors* g1);
 
 }  // namespace roothelper
 

@@ -24,9 +24,9 @@ class DataSaver {
   ~DataSaver();
 
   template <class ObjectType>
-  void saveObject(ObjectType* obj, const std::filesystem::path& relative_save_directory) const;
+  void SaveObject(ObjectType* obj, const std::filesystem::path& relative_save_directory) const;
 
-  void writeCanvas(TCanvas* c, const std::filesystem::path& relative_save_directory = "") const;
+  void WriteCanvas(TCanvas* c, const std::filesystem::path& relative_save_directory = "") const;
 
   void write_canvas_without_data_saving(
       TCanvas* c, const std::filesystem::path& relative_save_directory = "") const;
@@ -34,7 +34,7 @@ class DataSaver {
   std::filesystem::path create_directories(const std::filesystem::path& relative_path) const;
 
  private:
-  void createAndChangeDirectory(const std::filesystem::path& relative_save_directory) const;
+  void CreateAndChangeDirectory(const std::filesystem::path& relative_save_directory) const;
 
   const std::filesystem::path base_directory_;
   std::unique_ptr<TFile> f_write_;
@@ -47,17 +47,17 @@ class DataSaver {
 };
 
 template <class ObjectType>
-void DataSaver::saveObject(ObjectType* obj,
+void DataSaver::SaveObject(ObjectType* obj,
                             const std::filesystem::path& relative_save_directory) const {
-  createAndChangeDirectory(relative_save_directory);
+  CreateAndChangeDirectory(relative_save_directory);
 
-  auto saveChild = [relative_save_directory, this](TList* list) {
+  auto SaveChild = [relative_save_directory, this](TList* list) {
     if (list == nullptr) {
       return;
     }
 
     for (auto* child : *list) {
-      saveObject(child, relative_save_directory);
+      SaveObject(child, relative_save_directory);
     }
   };
 
@@ -65,13 +65,13 @@ void DataSaver::saveObject(ObjectType* obj,
     if (obj->InheritsFrom(TClass::GetClass<TCanvas>())) {
       obj->Write("", TObject::kOverwrite);
     }
-    saveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives());
+    SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives());
   } else if (obj->InheritsFrom(TClass::GetClass<TMultiGraph>())) {
     obj->Write("", TObject::kOverwrite);
-    saveChild(dynamic_cast<TMultiGraph*>(obj)->GetListOfGraphs());
+    SaveChild(dynamic_cast<TMultiGraph*>(obj)->GetListOfGraphs());
   } else if (obj->InheritsFrom(TClass::GetClass<THStack>())) {
     obj->Write("", TObject::kOverwrite);
-    saveChild(dynamic_cast<THStack*>(obj)->GetHists());
+    SaveChild(dynamic_cast<THStack*>(obj)->GetHists());
   } else {
     for (const auto* class_type : class_to_save_list_) {
       if (obj->InheritsFrom(class_type)) {
