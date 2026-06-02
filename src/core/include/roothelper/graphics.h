@@ -8,11 +8,14 @@
 #include <TGraph.h>
 #include <TGraph2D.h>
 #include <TH1.h>
+#include <TH2.h>
+#include <TH2D.h>
 #include <TLatex.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TMultiGraph.h>
 #include <TPad.h>
+#include <TPaletteAxis.h>
 
 #include <algorithm>
 #include <cmath>
@@ -167,6 +170,37 @@ void SetZAxis(GraphType* graph_object) {
   axis->SetTitleOffset(GraphicsSize::current.title_offset_x);
   axis->SetDecimals(true);
   axis->CenterTitle();
+
+  TPaletteAxis* palette = nullptr;
+  if (obj->InheritsFrom(TH1::Class())) {
+    TObject* pal_obj = dynamic_cast<TH1*>(obj)->GetListOfFunctions()->FindObject("palette");
+    if (pal_obj != nullptr) {
+      palette = static_cast<TPaletteAxis*>(pal_obj);
+    }
+  } else if (obj->InheritsFrom(TGraph2D::Class())) {
+    TGraph2D* g2d = dynamic_cast<TGraph2D*>(obj);
+    if (g2d->GetHistogram() != nullptr) {
+      TObject* pal_obj = g2d->GetHistogram()->GetListOfFunctions()->FindObject("palette");
+      if (pal_obj != nullptr) {
+        palette = static_cast<TPaletteAxis*>(pal_obj);
+      }
+    }
+  }
+
+  if (palette != nullptr) {
+    palette->SetX1NDC(1.0 - gPad->GetRightMargin() + 0.01);
+    palette->SetX2NDC(1.0 - gPad->GetRightMargin() + 0.045);
+    palette->SetY1NDC(gPad->GetBottomMargin());
+    palette->SetY2NDC(1.0 - gPad->GetTopMargin());
+
+    TGaxis* p_axis = palette->GetAxis();
+    if (p_axis != nullptr) {
+      p_axis->SetTitleSize(GraphicsSize::current.text_size);
+      p_axis->SetLabelSize(GraphicsSize::current.text_size);
+      p_axis->SetTitleOffset(GraphicsSize::current.title_offset_x * 1.25);
+      p_axis->CenterTitle();
+    }
+  }
 }
 
 template <class GraphType>
