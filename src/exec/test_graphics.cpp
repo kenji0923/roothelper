@@ -58,13 +58,13 @@ int main(int argc, char** argv)
     y_wave_offset = -1.5;
     create_test_canvas(data_saver, "SixPads_8pt", 3, 2);
 
-    /**
-     * Single pad.
-     * 10pt text size with 86mm width.
-     * Increasing right margin of the pad for a label at the end of x-axis.
-     */
-    rh::GraphicsSize::current = rh::g_size_10pt;
-    create_test_canvas(data_saver, "SinglePad_10pt_LabelAtXend");
+    // /**
+    //  * Single pad.
+    //  * 10pt text size with 86mm width.
+    //  * Increasing right margin of the pad for a label at the end of x-axis.
+    //  */
+    // rh::GraphicsSize::current = rh::g_size_10pt;
+    // create_test_canvas(data_saver, "SinglePad_10pt_LabelAtXend");
 
     /**
      * 2D graph with COLZ.

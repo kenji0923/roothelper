@@ -174,7 +174,7 @@ TLegend* PutLegend(LegendPosition leg_pos, Option_t* option, double width, doubl
   return leg;
 }
 
-double GetMaxLabelWidthNdc(TAxis* axis) {
+double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis) {
   if (axis == nullptr || gPad == nullptr) {
     return 0.0;
   }
@@ -197,8 +197,23 @@ double GetMaxLabelWidthNdc(TAxis* axis) {
     return static_cast<double>(max_w) / (gPad->GetWw() * gPad->GetWNDC());
   }
 
-  const double x_min = axis->GetXmin();
-  const double x_max = axis->GetXmax();
+  double x_min = axis->GetXmin();
+  double x_max = axis->GetXmax();
+  if (is_y_axis) {
+    x_min = gPad->GetUymin();
+    x_max = gPad->GetUymax();
+    if (gPad->GetLogy() != 0) {
+      x_min = std::pow(10.0, x_min);
+      x_max = std::pow(10.0, x_max);
+    }
+  } else {
+    x_min = gPad->GetUxmin();
+    x_max = gPad->GetUxmax();
+    if (gPad->GetLogx() != 0) {
+      x_min = std::pow(10.0, x_min);
+      x_max = std::pow(10.0, x_max);
+    }
+  }
   const int n_div_code = axis->GetNdivisions();
   const int n_primary = std::abs(n_div_code) % 100;
 

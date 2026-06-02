@@ -133,7 +133,7 @@ void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
   axis->CenterTitle();
 }
 
-double GetMaxLabelWidthNdc(TAxis* axis);
+double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true);
 void OptimizeYAxisLayout(TAxis* y_axis);
 double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
