@@ -6,6 +6,8 @@
 #include <TCollection.h>
 #include <TGaxis.h>
 #include <TGraph.h>
+#include <TGraph2D.h>
+#include <TH1.h>
 #include <TLatex.h>
 #include <TLegend.h>
 #include <TLine.h>
@@ -18,6 +20,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <type_traits>
 
 namespace roothelper {
 
@@ -38,16 +41,17 @@ struct GraphicsSize {
   double left_margin;
   double top_margin_with_exponent;
   double right_margin_with_exponent;
+  double right_margin_with_palette;
   double margin_step_horizontal;
   double margin_step_vertcical;
 };
 
 inline const GraphicsSize kGraphicsSize8pt = {
-    700, 500, 0.05195, 1.1, 1.15, 0.225, 0.03, 0.005, 0.14, 0.14, 0.06, 0.07, 0.019, 0.01,
+    700, 500, 0.05195, 1.1, 1.15, 0.225, 0.03, 0.005, 0.14, 0.14, 0.06, 0.07, 0.18, 0.019, 0.01,
 };
 
 inline const GraphicsSize kGraphicsSize10pt = {
-    700, 500, 0.06494, 1.15, 1.20, 0.2, 0.01, 0.005, 0.155, 0.15, 0.06, 0.07, 0.025, 0.01,
+    700, 500, 0.06494, 1.15, 1.20, 0.2, 0.01, 0.005, 0.155, 0.15, 0.06, 0.07, 0.20, 0.025, 0.01,
 };
 
 inline const GraphicsSize g_size_8pt = kGraphicsSize8pt;
@@ -92,8 +96,29 @@ TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width =
                     double height = 0.2);
 
 template <class GraphType>
-void SetXAxis(GraphType* graph_object) {
-  gPad->SetRightMargin(GraphicsSize::current.right_margin);
+void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
+  std::string option = draw_option;
+  if (option.empty()) {
+    if constexpr (std::is_base_of_v<TObject, GraphType>) {
+      if (graph_object->GetDrawOption() != nullptr) {
+        option = graph_object->GetDrawOption();
+      }
+    }
+  }
+
+  bool has_z = false;
+  for (char c : option) {
+    if (c == 'z' || c == 'Z') {
+      has_z = true;
+      break;
+    }
+  }
+
+  if (has_z) {
+    gPad->SetRightMargin(GraphicsSize::current.right_margin_with_palette);
+  } else {
+    gPad->SetRightMargin(GraphicsSize::current.right_margin);
+  }
   gPad->SetBottomMargin(GraphicsSize::current.bottom_margin);
 
   TAxis* axis = graph_object->GetXaxis();
@@ -124,10 +149,32 @@ void SetYAxis(GraphType* graph_object) {
 }
 
 template <class GraphType>
-void SetAxes(GraphType* graph_object) {
+void SetZAxis(GraphType* graph_object) {
+  TObject* obj = dynamic_cast<TObject*>(graph_object);
+  if (obj == nullptr) return;
+
+  TAxis* axis = nullptr;
+  if (obj->InheritsFrom(TH1::Class())) {
+    axis = dynamic_cast<TH1*>(obj)->GetZaxis();
+  } else if (obj->InheritsFrom(TGraph2D::Class())) {
+    axis = dynamic_cast<TGraph2D*>(obj)->GetZaxis();
+  }
+
+  if (axis == nullptr) return;
+
+  axis->SetTitleSize(GraphicsSize::current.text_size);
+  axis->SetLabelSize(GraphicsSize::current.text_size);
+  axis->SetTitleOffset(GraphicsSize::current.title_offset_x);
+  axis->SetDecimals(true);
+  axis->CenterTitle();
+}
+
+template <class GraphType>
+void SetAxes(GraphType* graph_object, Option_t* draw_option = "") {
   gPad->Update();
-  SetXAxis(graph_object);
+  SetXAxis(graph_object, draw_option);
   SetYAxis(graph_object);
+  SetZAxis(graph_object);
   gPad->Modified();
   gPad->Update();
 }
