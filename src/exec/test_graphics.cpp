@@ -15,7 +15,7 @@ namespace rh = roothelper;
 TCanvas* create_test_canvas(std::string canvas_name, const unsigned int n_pad_x = 1, const unsigned int n_pad_y = 1);
 TCanvas* create_test_canvas_2d(std::string canvas_name);
 
-rh::DataSaver data_saver("test_macro/GraphicsTest");
+rh::DataSaver data_saver("GraphicsTest");
 
 double y_wave_offset = 0;
 
