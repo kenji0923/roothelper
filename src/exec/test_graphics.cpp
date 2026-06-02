@@ -12,10 +12,8 @@
 
 namespace rh = roothelper;
 
-TCanvas* create_test_canvas(std::string canvas_name, const unsigned int n_pad_x = 1, const unsigned int n_pad_y = 1);
-TCanvas* create_test_canvas_2d(std::string canvas_name);
-
-rh::DataSaver data_saver("GraphicsTest");
+TCanvas* create_test_canvas(rh::DataSaver& data_saver, std::string canvas_name, const unsigned int n_pad_x = 1, const unsigned int n_pad_y = 1);
+TCanvas* create_test_canvas_2d(rh::DataSaver& data_saver, std::string canvas_name);
 
 double y_wave_offset = 0;
 
@@ -23,40 +21,42 @@ int main(int argc, char** argv)
 {
     rh::Prepare();
 
+    rh::DataSaver data_saver("GraphicsTest");
+
     /**
      * Single pad.
      * 8pt text size with 86mm width.
      * Increasing right margin of the pad for a label at the end of x-axis.
      */
-    create_test_canvas("SinglePad_8pt_LabelAtXend");
+    create_test_canvas(data_saver, "SinglePad_8pt_LabelAtXend");
 
     /**
      * Single pad.
      * More y-axis digits.
      */
     y_wave_offset = 10;
-    create_test_canvas("SinglePad_MoreYaxisDigits");
+    create_test_canvas(data_saver, "SinglePad_MoreYaxisDigits");
 
     /**
      * Single pad.
      * Many y-axis digits.
      */
     y_wave_offset = 100;
-    create_test_canvas("SinglePad_ManyYaxisDigits");
+    create_test_canvas(data_saver, "SinglePad_ManyYaxisDigits");
 
     /**
      * Four pads.
      * Only positive y-values.
      */
     y_wave_offset = +1.5;
-    create_test_canvas("FourPads_8pt", 2, 2);
+    create_test_canvas(data_saver, "FourPads_8pt", 2, 2);
 
     /**
      * Six pads.
      * Only negative y-values.
      */
     y_wave_offset = -1.5;
-    create_test_canvas("SixPads_8pt", 3, 2);
+    create_test_canvas(data_saver, "SixPads_8pt", 3, 2);
 
     /**
      * Single pad.
@@ -64,19 +64,19 @@ int main(int argc, char** argv)
      * Increasing right margin of the pad for a label at the end of x-axis.
      */
     rh::GraphicsSize::current = rh::g_size_10pt;
-    create_test_canvas("SinglePad_10pt_LabelAtXend");
+    create_test_canvas(data_saver, "SinglePad_10pt_LabelAtXend");
 
     /**
      * 2D graph with COLZ.
      * 8pt text size.
      */
     rh::GraphicsSize::current = rh::g_size_8pt;
-    create_test_canvas_2d("Graph2DTest");
+    create_test_canvas_2d(data_saver, "Graph2DTest");
 
     return 0;
 }
 
-TCanvas* create_test_canvas(std::string canvas_name, const unsigned int n_pad_x, const unsigned int n_pad_y)
+TCanvas* create_test_canvas(rh::DataSaver& data_saver, std::string canvas_name, const unsigned int n_pad_x, const unsigned int n_pad_y)
 {
     canvas_name = std::string("c_") + canvas_name;
     TCanvas* c = rh::CreateCanvas(canvas_name.c_str(), canvas_name.c_str(), n_pad_x, n_pad_y);
@@ -99,7 +99,7 @@ TCanvas* create_test_canvas(std::string canvas_name, const unsigned int n_pad_x,
     return c;
 }
 
-TCanvas* create_test_canvas_2d(std::string canvas_name)
+TCanvas* create_test_canvas_2d(rh::DataSaver& data_saver, std::string canvas_name)
 {
     canvas_name = std::string("c_") + canvas_name;
     TCanvas* c = rh::CreateCanvas(canvas_name.c_str(), "TGraph2D Test with COLZ");
