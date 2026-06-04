@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+
+def is_number(s: str) -> bool:
+    """Checks if a string represents a valid C++ numeric literal."""
+    # Exclude inf/nan which float() might parse but are string-like
+    if s.lower() in ('nan', 'inf', 'infinity', '-inf', '-infinity', '+inf', '+infinity'):
+        return False
+    try:
+        # Check standard base 10 integers and floats
+        float(s)
+        return True
+    except ValueError:
+        pass
+    try:
+        # Check hexadecimal, octal, binary integers (e.g., 0x1a, 0o75, 0b1010)
+        int(s, 0)
+        return True
+    except ValueError:
+        pass
+    return False
+
+def split_braced_list(s: str) -> list[str]:
+    """Splits a braced list content by comma, taking care of quotes and nested braces."""
+    elements = []
+    current = []
+    in_quotes = False
+    brace_level = 0
+    for char in s:
+        if char == '"' and (not current or current[-1] != '\\'):
+            in_quotes = not in_quotes
+            current.append(char)
+        elif char == '{' and not in_quotes:
+            brace_level += 1
+            current.append(char)
+        elif char == '}' and not in_quotes:
+            brace_level -= 1
+            current.append(char)
+        elif char == ',' and not in_quotes and brace_level == 0:
+            elements.append("".join(current).strip())
+            current = []
+        else:
+            current.append(char)
+    if current:
+        elements.append("".join(current).strip())
+    return elements
+
+def format_arg(arg: str) -> str:
+    """Infers the C++ type of the argument and formats it accordingly."""
+    s = arg.strip()
+    
+    # 1. Braced Initializer List: recursively parse and format each element
+    if s.startswith('{') and s.endswith('}'):
+        inner_content = s[1:-1].strip()
+        if not inner_content:
+            return '{}'
+        elements = split_braced_list(inner_content)
+        formatted_elements = [format_arg(elem) for elem in elements]
+        return f"{{{', '.join(formatted_elements)}}}"
+        
+    # 2. Boolean
+    if s.lower() == 'true':
+        return 'true'
+    if s.lower() == 'false':
+        return 'false'
+        
+    # 3. Numeric literal
+    if is_number(s):
+        return s
+        
+    # 4. String literal (already quoted)
+    if s.startswith('"') and s.endswith('"'):
+        return s
+        
+    # 5. Generic string literal (wrap in double quotes and escape internal quotes)
+    escaped = s.replace('"', '\\"')
+    return f'"{escaped}"'
+
+def main():
+    args = sys.argv[1:]
+    
+    # Extract options and positional args
+    suppress_b = False
+    suppress_q = False
+    positionals = []
+    
+    for arg in args:
+        if arg == '-nb':
+            suppress_b = True
+        elif arg == '-nq':
+            suppress_q = True
+        else:
+            positionals.append(arg)
+            
+    if not positionals:
+        print("Error: No ROOT script specified.", file=sys.stderr)
+        print("Usage: rooti [-nb] [-nq] <script.cpp> [macro_args...]", file=sys.stderr)
+        sys.exit(1)
+        
+    script_path = positionals[0]
+    macro_args = positionals[1:]
+    
+    # Format macro arguments
+    formatted_args = [format_arg(arg) for arg in macro_args]
+    
+    # Construct the macro call: script.cpp(arg1, arg2, ...)
+    macro_call = f"{script_path}({', '.join(formatted_args)})"
+    
+    # Construct the root command
+    root_cmd = ["root"]
+    if not suppress_b:
+        root_cmd.append("-b")
+    if not suppress_q:
+        root_cmd.append("-q")
+    root_cmd.append(macro_call)
+    
+    # Print the command being run for transparency
+    print(f"Executing: {' '.join(root_cmd)}", file=sys.stderr)
+    
+    try:
+        # Run ROOT and preserve the return code
+        result = subprocess.run(root_cmd)
+        sys.exit(result.returncode)
+    except FileNotFoundError:
+        print("Error: 'root' executable not found in PATH.", file=sys.stderr)
+        sys.exit(127)
+
+if __name__ == '__main__':
+    main()
