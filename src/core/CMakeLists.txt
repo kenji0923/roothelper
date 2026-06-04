@@ -27,15 +27,15 @@ target_link_libraries(Analysis PUBLIC
 )
 
 
-add_library(ROOThelper INTERFACE)
-target_include_directories(ROOThelper INTERFACE include)
-target_link_libraries(ROOThelper INTERFACE
+add_library(RootHelper INTERFACE)
+target_include_directories(RootHelper INTERFACE include)
+target_link_libraries(RootHelper INTERFACE
     DataSaver
     Graphics
     Container
     Analysis
 )
-target_sources(ROOThelper PUBLIC
+target_sources(RootHelper PUBLIC
     FILE_SET header
     TYPE HEADERS
     BASE_DIRS include/roothelper
@@ -45,14 +45,14 @@ target_sources(ROOThelper PUBLIC
 	include/roothelper/container.h
 	include/roothelper/analysis.h
 )
-target_sources(ROOThelper PUBLIC
+target_sources(RootHelper PUBLIC
     FILE_SET top_header_for_interpreter
     TYPE HEADERS
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../
     FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/../roothelper.h
 )
-target_sources(ROOThelper PUBLIC
+target_sources(RootHelper PUBLIC
     FILE_SET source_for_interpreter
     TYPE HEADERS
     FILES
@@ -75,19 +75,19 @@ install(
 )
 
 install(
-    TARGETS ROOThelper
+    TARGETS RootHelper
     FILE_SET header
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 install(
-    TARGETS ROOThelper
+    TARGETS RootHelper
     FILE_SET top_header_for_interpreter
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 install(
-    TARGETS ROOThelper
+    TARGETS RootHelper
     FILE_SET source_for_interpreter
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/src
 )
