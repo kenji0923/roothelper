@@ -1,0 +1,33 @@
+name: Deploy Doxygen to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Configure CMake and Generate Docs
+        run: |
+          cmake -B build -S . -DDOCS_ONLY=ON
+          cmake --build build --target doc
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/src/document/html
+          branch: gh-pages
+          clean: true

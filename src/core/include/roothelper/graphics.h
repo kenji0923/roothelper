@@ -22,14 +22,18 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
-#include <type_traits>
 
 namespace roothelper {
 
 class IContainerWrapper;
 
+/**
+ * @struct GraphicsSize
+ * @brief Layout tokens and configuration for padding, margins, and sizes in the pad/canvas.
+ */
 struct GraphicsSize {
   static GraphicsSize current;
 
@@ -61,26 +65,58 @@ inline const GraphicsSize kGraphicsSize10pt = {
 inline const GraphicsSize g_size_8pt = kGraphicsSize8pt;
 inline const GraphicsSize g_size_10pt = kGraphicsSize10pt;
 
+/**
+ * @brief Initialize global style, font settings, and layout parameters for ROOT.
+ */
 void Prepare();
 
+/**
+ * @brief Helper to get default pad columns and rows based on total plot count.
+ */
 std::pair<unsigned int, unsigned int> GetDefaultNPad(unsigned int n_plot);
 
+/**
+ * @brief Create a TCanvas partitioned into sub-pads.
+ *
+ * @param name Canvas name.
+ * @param title Canvas title.
+ * @param n_pad_x Sub-pad count horizontally.
+ * @param n_pad_y Sub-pad count vertically.
+ * @param each_size_x Width of a single pad in pixels.
+ * @param each_size_y Height of a single pad in pixels.
+ * @return TCanvas* Pointer to the created TCanvas.
+ */
 TCanvas* CreateCanvas(const std::string& name, const std::string& title, unsigned int n_pad_x = 1,
-                       unsigned int n_pad_y = 1,
-                       unsigned int each_size_x = GraphicsSize::current.pad_pixel_w,
-                       unsigned int each_size_y = GraphicsSize::current.pad_pixel_h);
+                      unsigned int n_pad_y = 1,
+                      unsigned int each_size_x = GraphicsSize::current.pad_pixel_w,
+                      unsigned int each_size_y = GraphicsSize::current.pad_pixel_h);
 
+/**
+ * @brief Create a TCanvas with an automatically determined pad grid.
+ */
 TCanvas* CreateCanvasWithDefaultPadMatrix(
     const std::string& name, const std::string& title, unsigned int n_pad = 1,
     unsigned int each_size_x = GraphicsSize::current.pad_pixel_h,
     unsigned int each_size_y = GraphicsSize::current.pad_pixel_h);
 
+/**
+ * @brief Retrieve a color from the predefined cyclic color ring.
+ */
 Color_t GetColorInRing(unsigned int index);
 
+/**
+ * @brief Increase the active pad's top margin.
+ */
 double IncreaseTopMargin(double scale = 1.0);
 
+/**
+ * @brief Increase the active pad's right margin.
+ */
 double IncreaseRightMargin(double scale = 1.0);
 
+/**
+ * @brief Increase the active pad's left margin and adjust Y-axis title offset accordingly.
+ */
 template <class GraphType>
 double IncreaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
   const double current = gPad->GetLeftMargin();
@@ -96,9 +132,21 @@ double IncreaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
 
 enum class LegendPosition { TopLeft, TopRight, BottomRight, BottomLeft };
 
+/**
+ * @brief Place a TLegend on the active pad.
+ *
+ * @param leg_pos Predefined corner position.
+ * @param option Draw option.
+ * @param width Width of the legend in NDC.
+ * @param height Height of the legend in NDC.
+ * @return TLegend* Pointer to the created TLegend.
+ */
 TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.3,
-                    double height = 0.2);
+                   double height = 0.2);
 
+/**
+ * @brief Style the X-axis of a ROOT object.
+ */
 template <class GraphType>
 void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
   std::string option = draw_option;
@@ -134,8 +182,17 @@ void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
   axis->CenterTitle();
 }
 
+/**
+ * @brief Measure the maximum label width of an axis in NDC.
+ *
+ * Consistent with engineering-format scientific notation rules.
+ */
 double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true, bool use_pad_limits = true,
                            double val_min_override = -1e300, double val_max_override = -1e300);
+
+/**
+ * @brief Dynamically optimize the left margin and Y-axis title offset for Y labels.
+ */
 void OptimizeYAxisLayout(TAxis* y_axis);
 double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
@@ -249,14 +306,14 @@ void SetZAxis(GraphType* graph_object) {
       if (gPad->GetLogz() == 0 && !axis_for_limits->GetNoExponent()) {
         const double max_val = std::max(std::abs(z_min), std::abs(z_max));
         const int max_digits = TGaxis::GetMaxDigits();
-        if (max_val != 0.0 && (max_val >= std::pow(10.0, max_digits) || max_val < std::pow(10.0, -max_digits))) {
+        if (max_val != 0.0 &&
+            (max_val >= std::pow(10.0, max_digits) || max_val < std::pow(10.0, -max_digits))) {
           has_exponent = true;
         }
       }
 
       const double right_edge_buffer = 0.010;
       double required_margin = 0.045 + distance_from_axis + title_size + right_edge_buffer;
-
 
       if (gPad->GetRightMargin() < required_margin) {
         gPad->SetRightMargin(required_margin);
@@ -340,9 +397,10 @@ TMultiGraph* SetMultigraphAxisFromMember(TMultiGraph* mg);
 double FindX(const TGraph* g, double y, double x_start = 0.0, double x_end = 0.0);
 
 template <class ObjectType>
-std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(
-    const char* canvas_name_title, size_t n_pad_x, size_t n_pad_y,
-    const std::vector<ObjectType*>& object_list, const char* draw_option) {
+std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(const char* canvas_name_title, size_t n_pad_x,
+                                                    size_t n_pad_y,
+                                                    const std::vector<ObjectType*>& object_list,
+                                                    const char* draw_option) {
   std::vector<TCanvas*> c_list;
 
   const size_t n_pad = n_pad_x * n_pad_y;
@@ -368,17 +426,17 @@ std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(
 }
 
 template <class T, class ObjectType>
-std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(const char* canvas_name_title,
-                                                         size_t n_pad_x, size_t n_pad_y,
-                                                         const std::map<T, ObjectType*>& object_map,
-                                                         const char* draw_option) {
+std::vector<TCanvas*> DrawWithAutoRecreatorOfCanvas(const char* canvas_name_title, size_t n_pad_x,
+                                                    size_t n_pad_y,
+                                                    const std::map<T, ObjectType*>& object_map,
+                                                    const char* draw_option) {
   std::vector<ObjectType*> object_list;
   for (const auto& pair : object_map) {
     object_list.push_back(pair.second);
   }
 
   return DrawWithAutoRecreatorOfCanvas(canvas_name_title, n_pad_x, n_pad_y, object_list,
-                                            draw_option);
+                                       draw_option);
 }
 
 template <class ConverterType>

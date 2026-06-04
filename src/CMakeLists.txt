@@ -16,9 +16,13 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
 
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist Gpad)
+option(DOCS_ONLY "Build documentation only" OFF)
 
-
-# add_subdirectory(document)
-add_subdirectory(core)
-add_subdirectory(exec)
+if(DOCS_ONLY)
+    add_subdirectory(document)
+else()
+    find_package(ROOT REQUIRED COMPONENTS Core Hist Gpad)
+    add_subdirectory(document)
+    add_subdirectory(core)
+    add_subdirectory(exec)
+endif()

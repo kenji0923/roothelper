@@ -24,26 +24,63 @@ namespace roothelper {
 std::vector<std::string> GetObjectPathFromDirectories(
     const std::string& object_name, const std::vector<std::string>& directory_list);
 
+/**
+ * @class ObjectList
+ * @brief Manages a collection of loaded ROOT objects from a directory.
+ *
+ * ObjectList assists in retrieving objects (e.g. histograms, graphs) from a ROOT
+ * directory and managing their titles and paths.
+ */
 class ObjectList {
  public:
+  /**
+   * @brief Construct a new ObjectList.
+   *
+   * @param list_name Name of the list.
+   */
   explicit ObjectList(const std::string& list_name);
   ~ObjectList();
 
+  /**
+   * @brief Load ROOT objects from a directory using a list of path names.
+   *
+   * @tparam ObjectType The type of objects to retrieve (must inherit from TObject).
+   * @param directory The input TDirectory file structure.
+   * @param path_list Names of keys/paths to fetch inside the directory.
+   * @param title_list Optional list of titles to override the default titles.
+   * @return int Number of objects loaded.
+   */
   template <class ObjectType>
   int LoadData(TDirectory* directory, const std::vector<std::string>& path_list,
-                const std::vector<std::string>& title_list = {});
+               const std::vector<std::string>& title_list = {});
 
+  /**
+   * @brief Get the size of the loaded object list.
+   */
   int GetListSize() const { return object_list_.size(); }
+
+  /**
+   * @brief Get the list of raw TObject pointers.
+   */
   const std::vector<TObject*>& GetObjectList() const { return object_list_; }
 
+  /**
+   * @brief Get the list of objects casted to a specific sub-class pointer type.
+   */
   template <class ObjectType>
   std::vector<ObjectType*> GetConvertedObjectList() const;
 
+  /**
+   * @brief Get a single object casted to a specific sub-class pointer type.
+   */
   template <class ObjectType>
   ObjectType* GetObject(int i) const {
     return dynamic_cast<ObjectType*>(object_list_.at(i));
   }
 
+  /**
+   * @brief Get the title of the i-th object.
+   */
   std::string GetTitle(int i) const { return title_list_.at(i); }
 
   std::string list_name_;
@@ -57,7 +94,7 @@ class ObjectList {
 
 template <class ObjectType>
 int ObjectList::LoadData(TDirectory* directory, const std::vector<std::string>& path_list,
-                          const std::vector<std::string>& title_list) {
+                         const std::vector<std::string>& title_list) {
   const int n_obj = path_list.size();
 
   for (int i_obj = 0; i_obj < n_obj; ++i_obj) {
@@ -92,6 +129,12 @@ std::vector<ObjectType*> ObjectList::GetConvertedObjectList() const {
   return converted_object_list;
 }
 
+/**
+ * @interface IContainerWrapper
+ * @brief Abstract interface wrapper for ROOT drawable container types (TMultiGraph and THStack).
+ *
+ * Provides polymorphic wrapper calls to draw, add elements, get axes limits and references.
+ */
 struct IContainerWrapper {
   virtual ~IContainerWrapper() = default;
 
@@ -111,9 +154,7 @@ struct DefaultOptions {};
 
 template <>
 struct DefaultOptions<TMultiGraph> {
-  int GetListSize(TMultiGraph* container) const {
-    return container->GetListOfGraphs()->GetSize();
-  }
+  int GetListSize(TMultiGraph* container) const { return container->GetListOfGraphs()->GetSize(); }
   TList* GetList(TMultiGraph* container) const { return container->GetListOfGraphs(); }
   TGraph* GetTypeSpecifiedObj(TObject* obj) const { return static_cast<TGraph*>(obj); }
 
@@ -149,6 +190,15 @@ void SetDefaultDrawOptionIfNull(std::string& option) {
 
 }  // namespace container_wrapper_internal
 
+/**
+ * @class ContainerWrapper
+ * @brief Templated implementation of IContainerWrapper wrapping specific ROOT containers.
+ *
+ * Typically instantiated as ContainerWrapper<TMultiGraph> or ContainerWrapper<THStack>.
+ * Automatically handles automatic color ring assignments and line styles on child additions.
+ *
+ * @tparam ContainerType The concrete ROOT container type (TMultiGraph or THStack).
+ */
 template <class ContainerType>
 struct ContainerWrapper : IContainerWrapper {
  public:
@@ -236,19 +286,54 @@ std::vector<TObject*> ContainerWrapper<ContainerType>::GetObjectList() const {
 
 enum class MultiObjectType { Graph, Histo };
 
+/**
+ * @class MultiObject
+ * @brief Manages plotting multiple combined graphs or histograms.
+ *
+ * High-level wrapper class that internally instantiates a ContainerWrapper
+ * (`TMultiGraph` or `THStack`) depending on the `MultiObjectType` provided,
+ * and handles adding and drawing multiple items as a unified group.
+ */
 class MultiObject {
  public:
+  /**
+   * @brief Construct a new MultiObject from paths in a TDirectory.
+   *
+   * @param object_type The container type (MultiObjectType::Graph or MultiObjectType::Histo).
+   * @param nametitle Name and title of the container object.
+   * @param directory The directory to fetch objects from.
+   * @param object_name File paths/keys of the objects to load.
+   * @param add_option Default Draw option for elements added to the container.
+   */
   MultiObject(MultiObjectType object_type, const std::string& nametitle, TDirectory* directory,
               const std::vector<std::string>& object_name, const std::string& add_option = "");
+
+  /**
+   * @brief Construct a new MultiObject from existing TObject pointers.
+   *
+   * @param object_type The container type (MultiObjectType::Graph or MultiObjectType::Histo).
+   * @param nametitle Name and title of the container object.
+   * @param obj_list List of existing TObject pointers.
+   * @param add_option Default Draw option for elements added to the container.
+   */
   MultiObject(MultiObjectType object_type, const std::string& nametitle,
               std::vector<TObject*> obj_list, const std::string& add_option = "");
   ~MultiObject();
 
+  /**
+   * @brief Draw the combined objects.
+   */
   void Draw(std::string option = "");
 
+  /**
+   * @brief Access the underlying ROOT container object (e.g. TMultiGraph or THStack).
+   */
   template <class ContainerType>
   ContainerType* get_container() const;
 
+  /**
+   * @brief Get the list of individual children objects (casted to their type).
+   */
   template <class ObjectType>
   std::vector<ObjectType*> GetObjectList() const;
 
