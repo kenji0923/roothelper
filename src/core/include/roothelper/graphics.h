@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <map>
 #include <string>
 #include <utility>
@@ -133,7 +134,8 @@ void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
   axis->CenterTitle();
 }
 
-double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true);
+double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true, bool use_pad_limits = true,
+                           double val_min_override = -1e300, double val_max_override = -1e300);
 void OptimizeYAxisLayout(TAxis* y_axis);
 double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
@@ -156,20 +158,51 @@ void SetZAxis(GraphType* graph_object) {
   TObject* obj = dynamic_cast<TObject*>(graph_object);
   if (obj == nullptr) return;
 
-  TAxis* axis = nullptr;
+  TAxis* axis_for_attributes = nullptr;
+  TAxis* axis_for_limits = nullptr;
+
   if (obj->InheritsFrom(TH1::Class())) {
-    axis = dynamic_cast<TH1*>(obj)->GetZaxis();
+    axis_for_attributes = dynamic_cast<TH1*>(obj)->GetZaxis();
+    axis_for_limits = axis_for_attributes;
   } else if (obj->InheritsFrom(TGraph2D::Class())) {
-    axis = dynamic_cast<TGraph2D*>(obj)->GetZaxis();
+    TGraph2D* g2d = dynamic_cast<TGraph2D*>(obj);
+    axis_for_attributes = g2d->GetZaxis();
+    if (g2d->GetHistogram() != nullptr) {
+      axis_for_limits = g2d->GetHistogram()->GetZaxis();
+    } else {
+      axis_for_limits = g2d->GetZaxis();
+    }
   }
 
-  if (axis == nullptr) return;
+  if (axis_for_attributes == nullptr || axis_for_limits == nullptr) return;
 
-  axis->SetTitleSize(GraphicsSize::current.text_size);
-  axis->SetLabelSize(GraphicsSize::current.text_size);
-  axis->SetTitleOffset(GraphicsSize::current.title_offset_x);
-  axis->SetDecimals(true);
-  axis->CenterTitle();
+  double z_min = 0.0;
+  double z_max = 0.0;
+  if (obj->InheritsFrom(TH1::Class())) {
+    TH1* h = dynamic_cast<TH1*>(obj);
+    z_min = h->GetMinimum();
+    z_max = h->GetMaximum();
+  } else if (obj->InheritsFrom(TGraph2D::Class())) {
+    TGraph2D* g2d = dynamic_cast<TGraph2D*>(obj);
+    if (g2d->GetHistogram() != nullptr) {
+      z_min = g2d->GetHistogram()->GetMinimum();
+      z_max = g2d->GetHistogram()->GetMaximum();
+    }
+  }
+
+  axis_for_attributes->SetTitleSize(GraphicsSize::current.text_size);
+  axis_for_attributes->SetLabelSize(GraphicsSize::current.text_size);
+  axis_for_attributes->SetTitleOffset(GraphicsSize::current.title_offset_x);
+  axis_for_attributes->SetDecimals(true);
+  axis_for_attributes->CenterTitle();
+
+  if (axis_for_limits != axis_for_attributes) {
+    axis_for_limits->SetTitleSize(GraphicsSize::current.text_size);
+    axis_for_limits->SetLabelSize(GraphicsSize::current.text_size);
+    axis_for_limits->SetTitleOffset(GraphicsSize::current.title_offset_x);
+    axis_for_limits->SetDecimals(true);
+    axis_for_limits->CenterTitle();
+  }
 
   TPaletteAxis* palette = nullptr;
   if (obj->InheritsFrom(TH1::Class())) {
@@ -188,18 +221,59 @@ void SetZAxis(GraphType* graph_object) {
   }
 
   if (palette != nullptr) {
-    palette->SetX1NDC(1.0 - gPad->GetRightMargin() + 0.01);
-    palette->SetX2NDC(1.0 - gPad->GetRightMargin() + 0.045);
-    palette->SetY1NDC(gPad->GetBottomMargin());
-    palette->SetY2NDC(1.0 - gPad->GetTopMargin());
-
     TGaxis* p_axis = palette->GetAxis();
     if (p_axis != nullptr) {
       p_axis->SetTitleSize(GraphicsSize::current.text_size);
       p_axis->SetLabelSize(GraphicsSize::current.text_size);
-      p_axis->SetTitleOffset(GraphicsSize::current.title_offset_x * 1.25);
+
+      const double label_width = GetMaxLabelWidthNdc(axis_for_limits, true, false, z_min, z_max);
+      const double tick_length = p_axis->GetTickSize();
+      const double title_size = p_axis->GetTitleSize();
+      const double gap = 0.010;
+      const double distance_from_axis = tick_length + label_width + gap;
+      double title_offset = (distance_from_axis / title_size) * 0.60 + 0.20;
+      if (title_offset < 0.3) {
+        title_offset = 0.3;
+      }
+
+      axis_for_attributes->SetTitleOffset(title_offset);
+      axis_for_limits->SetTitleOffset(title_offset);
+      p_axis->SetTitleOffset(title_offset);
+      palette->SetTitleOffset(title_offset);
+      axis_for_attributes->CenterTitle();
+      axis_for_limits->CenterTitle();
       p_axis->CenterTitle();
+
+      // Check if Z-axis requires an exponent multiplier at the top of the axis
+      bool has_exponent = false;
+      if (gPad->GetLogz() == 0 && !axis_for_limits->GetNoExponent()) {
+        const double max_val = std::max(std::abs(z_min), std::abs(z_max));
+        const int max_digits = TGaxis::GetMaxDigits();
+        if (max_val != 0.0 && (max_val >= std::pow(10.0, max_digits) || max_val < std::pow(10.0, -max_digits))) {
+          has_exponent = true;
+        }
+      }
+
+      const double right_edge_buffer = 0.010;
+      double required_margin = 0.045 + distance_from_axis + title_size + right_edge_buffer;
+
+
+      if (gPad->GetRightMargin() < required_margin) {
+        gPad->SetRightMargin(required_margin);
+      }
+
+      if (has_exponent) {
+        const double required_top_margin = 0.065;
+        if (gPad->GetTopMargin() < required_top_margin) {
+          gPad->SetTopMargin(required_top_margin);
+        }
+      }
     }
+
+    palette->SetX1NDC(1.0 - gPad->GetRightMargin() + 0.01);
+    palette->SetX2NDC(1.0 - gPad->GetRightMargin() + 0.045);
+    palette->SetY1NDC(gPad->GetBottomMargin());
+    palette->SetY2NDC(1.0 - gPad->GetTopMargin());
   }
 }
 

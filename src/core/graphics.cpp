@@ -174,7 +174,8 @@ TLegend* PutLegend(LegendPosition leg_pos, Option_t* option, double width, doubl
   return leg;
 }
 
-double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis) {
+double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis, bool use_pad_limits,
+                           double val_min_override, double val_max_override) {
   if (axis == nullptr || gPad == nullptr) {
     return 0.0;
   }
@@ -197,9 +198,14 @@ double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis) {
     return static_cast<double>(max_w) / (gPad->GetWw() * gPad->GetWNDC());
   }
 
-  double x_min = axis->GetXmin();
-  double x_max = axis->GetXmax();
-  if (is_y_axis) {
+  double x_min = (val_min_override > -1e299) ? val_min_override : axis->GetXmin();
+  double x_max = (val_max_override > -1e299) ? val_max_override : axis->GetXmax();
+  if (!use_pad_limits) {
+    if (gPad->GetLogz() != 0) {
+      x_min = std::pow(10.0, x_min);
+      x_max = std::pow(10.0, x_max);
+    }
+  } else if (is_y_axis) {
     x_min = gPad->GetUymin();
     x_max = gPad->GetUymax();
     if (gPad->GetLogy() != 0) {
@@ -240,6 +246,39 @@ double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis) {
   UInt_t h = 0;
   const int max_digits = TGaxis::GetMaxDigits();
 
+  // Find the single global exponent N for the entire axis
+  int global_exp = 0;
+  if (!axis->GetNoExponent()) {
+    const double max_val = std::max(std::abs(bin_low), std::abs(bin_high));
+    if (max_val != 0.0) {
+      if (max_val >= std::pow(10.0, max_digits)) {
+        const int int_digits = static_cast<int>(std::floor(std::log10(max_val))) + 1;
+        const int diff = int_digits - max_digits;
+        if (diff > 0) {
+          global_exp = ((diff + 2) / 3) * 3;
+        }
+      } else if (max_val < std::pow(10.0, -max_digits)) {
+        const int neg_digits = static_cast<int>(std::floor(std::log10(max_val)));
+        int n = neg_digits;
+        if (n % 3 != 0) {
+          n = (n / 3) * 3 - 3;
+        }
+        global_exp = n;
+      }
+    }
+  }
+
+  // Calculate the number of decimals based on the scaled bin width
+  double scaled_bin_width = bin_width;
+  if (global_exp != 0) {
+    scaled_bin_width /= std::pow(10.0, global_exp);
+  }
+
+  int decimals = 0;
+  if (scaled_bin_width < 1.0) {
+    decimals = static_cast<int>(std::ceil(-std::log10(scaled_bin_width) + 1e-9));
+  }
+
   for (int i = 0; i <= n_bins; ++i) {
     double val = bin_low + i * bin_width;
     if (std::abs(val) < 1e-10) {
@@ -247,14 +286,11 @@ double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis) {
     }
 
     TString s;
-    if (val != 0.0 && (std::abs(val) >= std::pow(10.0, max_digits) ||
-                       std::abs(val) < std::pow(10.0, -max_digits))) {
-      const int exp = static_cast<int>(std::floor(std::log10(std::abs(val))));
-      const double base = val / std::pow(10.0, exp);
-      s.Form("%g", base);
-    } else {
-      s.Form("%g", val);
+    double scaled_val = val;
+    if (global_exp != 0) {
+      scaled_val /= std::pow(10.0, global_exp);
     }
+    s.Form("%.*f", decimals, scaled_val);
 
     t.GetTextExtent(w, h, s.Data());
     if (w > max_w) {
@@ -275,13 +311,36 @@ void OptimizeYAxisLayout(TAxis* y_axis) {
   const double title_size = y_axis->GetTitleSize();
   const double gap = 0.010;
   const double distance_from_axis = tick_length + label_width + gap;
-  const double title_offset = (distance_from_axis / title_size) * 0.70;
+  double title_offset = (distance_from_axis / title_size) * 0.60 + 0.20;
+  if (title_offset < 0.3) {
+    title_offset = 0.3;
+  }
   y_axis->SetTitleOffset(title_offset);
+
 
   const double left_edge_buffer = 0.0;
   const double required_margin = distance_from_axis + title_size + left_edge_buffer;
   if (gPad->GetLeftMargin() < required_margin) {
     gPad->SetLeftMargin(required_margin);
+  }
+
+  // Check if Y-axis requires an exponent multiplier at the top of the axis
+  bool has_exponent = false;
+  if (gPad->GetLogy() == 0 && !y_axis->GetNoExponent()) {
+    const double y_min = gPad->GetUymin();
+    const double y_max = gPad->GetUymax();
+    const double max_val = std::max(std::abs(y_min), std::abs(y_max));
+    const int max_digits = TGaxis::GetMaxDigits();
+    if (max_val != 0.0 && (max_val >= std::pow(10.0, max_digits) || max_val < std::pow(10.0, -max_digits))) {
+      has_exponent = true;
+    }
+  }
+
+  if (has_exponent) {
+    const double required_top_margin = 0.085;
+    if (gPad->GetTopMargin() < required_top_margin) {
+      gPad->SetTopMargin(required_top_margin);
+    }
   }
 }
 
