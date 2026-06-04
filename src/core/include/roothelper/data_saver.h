@@ -51,27 +51,29 @@ void DataSaver::SaveObject(ObjectType* obj,
                             const std::filesystem::path& relative_save_directory) const {
   CreateAndChangeDirectory(relative_save_directory);
 
-  auto SaveChild = [relative_save_directory, this](TList* list) {
+  auto SaveChild = [this](TList* list, const std::filesystem::path& child_dir) {
     if (list == nullptr) {
       return;
     }
 
     for (auto* child : *list) {
-      SaveObject(child, relative_save_directory);
+      SaveObject(child, child_dir);
     }
   };
 
   if (obj->InheritsFrom(TClass::GetClass<TPad>())) {
     if (obj->InheritsFrom(TClass::GetClass<TCanvas>())) {
       obj->Write("", TObject::kOverwrite);
+      SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives(), relative_save_directory / ("data_" + std::string(obj->GetName())));
+    } else {
+      SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives(), relative_save_directory);
     }
-    SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives());
   } else if (obj->InheritsFrom(TClass::GetClass<TMultiGraph>())) {
     obj->Write("", TObject::kOverwrite);
-    SaveChild(dynamic_cast<TMultiGraph*>(obj)->GetListOfGraphs());
+    SaveChild(dynamic_cast<TMultiGraph*>(obj)->GetListOfGraphs(), relative_save_directory / ("data_" + std::string(obj->GetName())));
   } else if (obj->InheritsFrom(TClass::GetClass<THStack>())) {
     obj->Write("", TObject::kOverwrite);
-    SaveChild(dynamic_cast<THStack*>(obj)->GetHists());
+    SaveChild(dynamic_cast<THStack*>(obj)->GetHists(), relative_save_directory / ("data_" + std::string(obj->GetName())));
   } else {
     for (const auto* class_type : class_to_save_list_) {
       if (obj->InheritsFrom(class_type)) {
