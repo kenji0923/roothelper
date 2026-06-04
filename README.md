@@ -49,6 +49,16 @@ Fully detailed, interactive class and namespace documentation generated directly
 
 ---
 
+## Utility Scripts (`script/`)
+
+To support development, testing, and system integration, `roothelper` includes the following scripts under the [script/](file:///home/kshu/work/development/ROOT_helper/script) directory:
+
+* **`rooti`**: A Python command-line wrapper to execute ROOT macro scripts with dynamic argument type inference. It parses list structures, booleans, numbers, and strings from shell inputs, formatting a C++ invocation call like `script_path(arg1, arg2, ...)` and executing ROOT in batch mode (via `root -b -q`).
+* **`CreateRootClangd`**: Automatically creates a local `.clangd` file containing ROOT compilation flags derived from `root-config --cflags`. This resolves ROOT symbols and headers correctly for clangd-based Language Server Protocol (LSP) configurations.
+* **`open_root_browser.bat`**: A Windows batch file designed to integrate Windows Explorer with WSL2. It translates Windows file paths natively and registers a handler, allowing you to double-click `.root` files in Windows to instantly launch a WSL-based interactive ROOT `TBrowser`.
+
+---
+
 ## Integration
 
 ### C++ Source Integration

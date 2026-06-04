@@ -149,3 +149,33 @@ void OptimizeYAxisLayout(TAxis* y_axis);
 * **Purpose**: Solves the Y-axis label width dynamically and applies a constant-gap offset formula:
   `title_offset = (distance_from_axis / title_size) * 0.60 + 0.20`
   This ensures the visual gap between labels and the Y-axis title remains perfectly consistent.
+
+---
+
+## 5. Utility Scripts (`script/`)
+
+The repository includes helper scripts to streamline the development cycle and integrate WSL with Windows environments.
+
+### `rooti` (Python Wrapper for Macro Runs)
+A CLI script that automates type inference and formatting for ROOT macro parameters.
+* **Usage**: `rooti [-nb] [-nq] <script.cpp> [macro_args...]`
+* **Features**:
+  * Automatically detects and formats booleans (`true`/`false`), numeric types, braced initializer lists (e.g. `{1.0, 2.0}`), and strings (wrapping them in quotes and escaping internal quotes).
+  * Executes the command using `root -b -q 'script.cpp(args)'` by default.
+  * `-nb`: Do not suppress batch mode (runs without `-b`).
+  * `-nq`: Do not quit after macro execution (runs without `-q`).
+
+### `CreateRootClangd` (Language Server Protocol Setup)
+A bash helper to configure `.clangd` local compiler flags for code intelligence.
+* **Usage**: Run `./CreateRootClangd` in the project root directory.
+* **Features**:
+  * Creates a local `.clangd` file if it does not exist.
+  * Retrieves compile flags from `root-config --cflags` and adds them to `.clangd`, allowing modern language servers (e.g. clangd) to correctly parse ROOT headers and symbols.
+
+### `open_root_browser.bat` (Windows-WSL File Association)
+A Windows Batch file mapping local files to the WSL environment.
+* **Usage**: Associate `.root` files in Windows Explorer to open using this batch script.
+* **Features**:
+  * Automatically translates UNC and local paths using `WSLENV` path translation flags (`/p`).
+  * Launches the interactive `TBrowser` via WSLg using `wsl bash -lc "root -l \"$ROOT_FILE_PATH\" -e \"new TBrowser\""`.
+
