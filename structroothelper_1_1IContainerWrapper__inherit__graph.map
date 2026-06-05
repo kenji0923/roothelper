@@ -1,0 +1,5 @@
+<map id="roothelper::IContainerWrapper" name="roothelper::IContainerWrapper">
+<area shape="rect" id="Node000001" title="Abstract interface wrapper for ROOT drawable container types (TMultiGraph and THStack)." alt="" coords="5,5,224,31"/>
+<area shape="rect" id="Node000002" href="$structroothelper_1_1ContainerWrapper.html" title="Templated implementation of IContainerWrapper wrapping specific ROOT containers." alt="" coords="7,79,222,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,44,117,79,112,79,112,44"/>
+</map>
