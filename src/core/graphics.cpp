@@ -113,17 +113,27 @@ TCanvas* CreateCanvasWithDefaultPadMatrix(const std::string& name, const std::st
 Color_t GetColorInRing(unsigned int index) {
   switch (index) {
     case 0:
-      return kAzure + 2;
+      return kP10Blue;
     case 1:
-      return kOrange + 10;
+      return kP10Yellow;
     case 2:
-      return kTeal + 4;
+      return kP10Red;
     case 3:
-      return kMagenta;
+      return kP10Gray;
     case 4:
-      return kCyan + 1;
+      return kP10Violet;
+    case 5:
+      return kP10Brown;
+    case 6:
+      return kP10Orange;
+    case 7:
+      return kP10Green;
+    case 8:
+      return kP10Ash;
+    case 9:
+      return kP10Cyan;
     default:
-      return kBlack;
+      return 1 + index;
   }
 }
 
