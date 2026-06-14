@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['saveobject_0',['SaveObject',['../classroothelper_1_1DataSaver.html#a3efe397cf30ccb324f770d4fcdfccf58',1,'roothelper::DataSaver']]],
+  ['saveobject_0',['SaveObject',['../classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58',1,'roothelper::DataSaver']]],
   ['scalehistox_1',['ScaleHistoX',['../namespaceroothelper.html#ab4ca80c60e5e059dfdfadd38dd406d6f',1,'roothelper']]],
   ['script_20tt_2',['5. Utility Scripts (&lt;tt&gt;script/&lt;/tt&gt;)',['../index.html#autotoc_md19',1,'']]],
   ['scripts_20tt_20script_20tt_3',['5. Utility Scripts (&lt;tt&gt;script/&lt;/tt&gt;)',['../index.html#autotoc_md19',1,'']]],

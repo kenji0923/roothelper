@@ -93,10 +93,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8d318e6094bafcc72897f3aeefe82e07" id="r_a8d318e6094bafcc72897f3aeefe82e07"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classroothelper_1_1DataSaver.html#a8d318e6094bafcc72897f3aeefe82e07">~DataSaver</a> ()</td></tr>
 <tr class="memdesc:a8d318e6094bafcc72897f3aeefe82e07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the <a class="el" href="classroothelper_1_1DataSaver.html" title="Manages saving graphical plots (PDF/PNG) and native ROOT objects to disk and a ROOT TFile.">DataSaver</a>, saving and closing the open ROOT file.  <br /></td></tr>
 <tr class="separator:a8d318e6094bafcc72897f3aeefe82e07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3efe397cf30ccb324f770d4fcdfccf58" id="r_a3efe397cf30ccb324f770d4fcdfccf58"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="structroothelper_1_1ContainerWrapper.html">class</a> <a class="el" href="structroothelper_1_1ContainerWrapper.html">ObjectType</a> &gt; </td></tr>
-<tr class="memitem:a3efe397cf30ccb324f770d4fcdfccf58"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structroothelper_1_1ContainerWrapper.html">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classroothelper_1_1DataSaver.html#a3efe397cf30ccb324f770d4fcdfccf58">SaveObject</a> (<a class="el" href="structroothelper_1_1ContainerWrapper.html">ObjectType</a> *<a class="el" href="structroothelper_1_1ContainerWrapper.html">obj</a>, <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a> std::filesystem::path &amp;<a class="el" href="structroothelper_1_1ContainerWrapper.html">relative_save_directory</a>) <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a></td></tr>
-<tr class="memdesc:a3efe397cf30ccb324f770d4fcdfccf58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively save a ROOT object and its child primitives.  <br /></td></tr>
-<tr class="separator:a3efe397cf30ccb324f770d4fcdfccf58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a090e3db8b311cdc8e51dc9ad5cffac58" id="r_a090e3db8b311cdc8e51dc9ad5cffac58"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="structroothelper_1_1ContainerWrapper.html">class</a> <a class="el" href="structroothelper_1_1ContainerWrapper.html">ObjectType</a> &gt; </td></tr>
+<tr class="memitem:a090e3db8b311cdc8e51dc9ad5cffac58"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structroothelper_1_1ContainerWrapper.html">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58">SaveObject</a> (<a class="el" href="structroothelper_1_1ContainerWrapper.html">ObjectType</a> *<a class="el" href="structroothelper_1_1ContainerWrapper.html">obj</a>, <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a> std::filesystem::path &amp;<a class="el" href="structroothelper_1_1ContainerWrapper.html">relative_save_directory</a>, <a class="el" href="structroothelper_1_1ContainerWrapper.html">bool</a> <a class="el" href="structroothelper_1_1ContainerWrapper.html">create_filesystem_dir</a>=<a class="el" href="structroothelper_1_1ContainerWrapper.html">true</a>) <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a></td></tr>
+<tr class="memdesc:a090e3db8b311cdc8e51dc9ad5cffac58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively save a ROOT object and its child primitives.  <br /></td></tr>
+<tr class="separator:a090e3db8b311cdc8e51dc9ad5cffac58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af17a6874430390049432b2d277fba5e9" id="r_af17a6874430390049432b2d277fba5e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structroothelper_1_1ContainerWrapper.html">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classroothelper_1_1DataSaver.html#af17a6874430390049432b2d277fba5e9">WriteCanvas</a> (<a class="el" href="structroothelper_1_1ContainerWrapper.html">TCanvas</a> *<a class="el" href="structroothelper_1_1ContainerWrapper.html">c</a>, <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a> std::filesystem::path &amp;<a class="el" href="structroothelper_1_1ContainerWrapper.html">relative_save_directory</a>=&quot;&quot;) <a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a></td></tr>
 <tr class="memdesc:af17a6874430390049432b2d277fba5e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a canvas to disk as PDF and PNG, and recursively save its contents to the ROOT TFile.  <br /></td></tr>
 <tr class="separator:af17a6874430390049432b2d277fba5e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -227,8 +227,8 @@ Public Member Functions</h2></td></tr>
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a3efe397cf30ccb324f770d4fcdfccf58" name="a3efe397cf30ccb324f770d4fcdfccf58"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3efe397cf30ccb324f770d4fcdfccf58">&#9670;&#160;</a></span>SaveObject()</h2>
+<a id="a090e3db8b311cdc8e51dc9ad5cffac58" name="a090e3db8b311cdc8e51dc9ad5cffac58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a090e3db8b311cdc8e51dc9ad5cffac58">&#9670;&#160;</a></span>SaveObject()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -245,7 +245,13 @@ template&lt;<a class="el" href="structroothelper_1_1ContainerWrapper.html">class
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structroothelper_1_1ContainerWrapper.html">const</a> std::filesystem::path &amp;&#160;</td>
-          <td class="paramname"><em>relative_save_directory</em>&#160;</td>
+          <td class="paramname"><em>relative_save_directory</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structroothelper_1_1ContainerWrapper.html">bool</a>&#160;</td>
+          <td class="paramname"><em>create_filesystem_dir</em> = <code><a class="el" href="structroothelper_1_1ContainerWrapper.html">true</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -275,46 +281,51 @@ template&lt;<a class="el" href="structroothelper_1_1ContainerWrapper.html">class
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="data__saver_8h_source.html#l00100">100</a> of file <a class="el" href="data__saver_8h_source.html">data_saver.h</a>.</p>
-<div class="fragment"><div class="line"><span class="lineno">  101</span>                                                                                   {</div>
-<div class="line"><span class="lineno">  102</span>  CreateAndChangeDirectory(relative_save_directory);</div>
-<div class="line"><span class="lineno">  103</span> </div>
-<div class="line"><span class="lineno">  104</span>  <span class="keyword">auto</span> SaveChild = [<span class="keyword">this</span>](TList* list, <span class="keyword">const</span> std::filesystem::path&amp; child_dir) {</div>
-<div class="line"><span class="lineno">  105</span>    <span class="keywordflow">if</span> (list == <span class="keyword">nullptr</span>) {</div>
-<div class="line"><span class="lineno">  106</span>      <span class="keywordflow">return</span>;</div>
-<div class="line"><span class="lineno">  107</span>    }</div>
-<div class="line"><span class="lineno">  108</span> </div>
-<div class="line"><span class="lineno">  109</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>* child : *list) {</div>
-<div class="line"><span class="lineno">  110</span>      <a class="code hl_function" href="classroothelper_1_1DataSaver.html#a3efe397cf30ccb324f770d4fcdfccf58">SaveObject</a>(child, child_dir);</div>
+<p class="definition">Definition at line <a class="el" href="data__saver_8h_source.html#l00102">102</a> of file <a class="el" href="data__saver_8h_source.html">data_saver.h</a>.</p>
+<div class="fragment"><div class="line"><span class="lineno">  104</span>                                                             {</div>
+<div class="line"><span class="lineno">  105</span>  CreateAndChangeDirectory(relative_save_directory, create_filesystem_dir);</div>
+<div class="line"><span class="lineno">  106</span> </div>
+<div class="line"><span class="lineno">  107</span>  <span class="keyword">auto</span> SaveChild = [<span class="keyword">this</span>](TList* list, <span class="keyword">const</span> std::filesystem::path&amp; child_dir,</div>
+<div class="line"><span class="lineno">  108</span>                          <span class="keywordtype">bool</span> child_create_filesystem_dir) {</div>
+<div class="line"><span class="lineno">  109</span>    <span class="keywordflow">if</span> (list == <span class="keyword">nullptr</span>) {</div>
+<div class="line"><span class="lineno">  110</span>      <span class="keywordflow">return</span>;</div>
 <div class="line"><span class="lineno">  111</span>    }</div>
-<div class="line"><span class="lineno">  112</span>  };</div>
-<div class="line"><span class="lineno">  113</span> </div>
-<div class="line"><span class="lineno">  114</span>  <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TPad&gt;())) {</div>
-<div class="line"><span class="lineno">  115</span>    <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TCanvas&gt;())) {</div>
-<div class="line"><span class="lineno">  116</span>      obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
-<div class="line"><span class="lineno">  117</span>      SaveChild(<span class="keyword">dynamic_cast&lt;</span>TPad*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfPrimitives(),</div>
-<div class="line"><span class="lineno">  118</span>                relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())));</div>
-<div class="line"><span class="lineno">  119</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><span class="lineno">  120</span>      SaveChild(<span class="keyword">dynamic_cast&lt;</span>TPad*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfPrimitives(), relative_save_directory);</div>
-<div class="line"><span class="lineno">  121</span>    }</div>
-<div class="line"><span class="lineno">  122</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TMultiGraph&gt;())) {</div>
-<div class="line"><span class="lineno">  123</span>    obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
-<div class="line"><span class="lineno">  124</span>    SaveChild(<span class="keyword">dynamic_cast&lt;</span>TMultiGraph*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfGraphs(),</div>
-<div class="line"><span class="lineno">  125</span>              relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())));</div>
-<div class="line"><span class="lineno">  126</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;THStack&gt;())) {</div>
-<div class="line"><span class="lineno">  127</span>    obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
-<div class="line"><span class="lineno">  128</span>    SaveChild(<span class="keyword">dynamic_cast&lt;</span>THStack*<span class="keyword">&gt;</span>(obj)-&gt;GetHists(),</div>
-<div class="line"><span class="lineno">  129</span>              relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())));</div>
-<div class="line"><span class="lineno">  130</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><span class="lineno">  131</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>* class_type : class_to_save_list_) {</div>
-<div class="line"><span class="lineno">  132</span>      <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(class_type)) {</div>
-<div class="line"><span class="lineno">  133</span>        obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
-<div class="line"><span class="lineno">  134</span>        <span class="keywordflow">break</span>;</div>
-<div class="line"><span class="lineno">  135</span>      }</div>
-<div class="line"><span class="lineno">  136</span>    }</div>
-<div class="line"><span class="lineno">  137</span>  }</div>
-<div class="line"><span class="lineno">  138</span>}</div>
-<div class="ttc" id="aclassroothelper_1_1DataSaver_html_a3efe397cf30ccb324f770d4fcdfccf58"><div class="ttname"><a href="classroothelper_1_1DataSaver.html#a3efe397cf30ccb324f770d4fcdfccf58">roothelper::DataSaver::SaveObject</a></div><div class="ttdeci">void SaveObject(ObjectType *obj, const std::filesystem::path &amp;relative_save_directory) const</div><div class="ttdoc">Recursively save a ROOT object and its child primitives.</div><div class="ttdef"><b>Definition</b> <a href="data__saver_8h_source.html#l00100">data_saver.h:100</a></div></div>
+<div class="line"><span class="lineno">  112</span> </div>
+<div class="line"><span class="lineno">  113</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span>* child : *list) {</div>
+<div class="line"><span class="lineno">  114</span>      <a class="code hl_function" href="classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58">SaveObject</a>(child, child_dir, child_create_filesystem_dir);</div>
+<div class="line"><span class="lineno">  115</span>    }</div>
+<div class="line"><span class="lineno">  116</span>  };</div>
+<div class="line"><span class="lineno">  117</span> </div>
+<div class="line"><span class="lineno">  118</span>  <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TPad&gt;())) {</div>
+<div class="line"><span class="lineno">  119</span>    <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TCanvas&gt;())) {</div>
+<div class="line"><span class="lineno">  120</span>      obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
+<div class="line"><span class="lineno">  121</span>      SaveChild(<span class="keyword">dynamic_cast&lt;</span>TPad*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfPrimitives(),</div>
+<div class="line"><span class="lineno">  122</span>                relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())),</div>
+<div class="line"><span class="lineno">  123</span>                <span class="keyword">false</span>);</div>
+<div class="line"><span class="lineno">  124</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><span class="lineno">  125</span>      SaveChild(<span class="keyword">dynamic_cast&lt;</span>TPad*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfPrimitives(), relative_save_directory,</div>
+<div class="line"><span class="lineno">  126</span>                create_filesystem_dir);</div>
+<div class="line"><span class="lineno">  127</span>    }</div>
+<div class="line"><span class="lineno">  128</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;TMultiGraph&gt;())) {</div>
+<div class="line"><span class="lineno">  129</span>    obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
+<div class="line"><span class="lineno">  130</span>    SaveChild(<span class="keyword">dynamic_cast&lt;</span>TMultiGraph*<span class="keyword">&gt;</span>(obj)-&gt;GetListOfGraphs(),</div>
+<div class="line"><span class="lineno">  131</span>              relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())),</div>
+<div class="line"><span class="lineno">  132</span>              <span class="keyword">false</span>);</div>
+<div class="line"><span class="lineno">  133</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(TClass::GetClass&lt;THStack&gt;())) {</div>
+<div class="line"><span class="lineno">  134</span>    obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
+<div class="line"><span class="lineno">  135</span>    SaveChild(<span class="keyword">dynamic_cast&lt;</span>THStack*<span class="keyword">&gt;</span>(obj)-&gt;GetHists(),</div>
+<div class="line"><span class="lineno">  136</span>              relative_save_directory / (<span class="stringliteral">&quot;data_&quot;</span> + std::string(obj-&gt;GetName())),</div>
+<div class="line"><span class="lineno">  137</span>              <span class="keyword">false</span>);</div>
+<div class="line"><span class="lineno">  138</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><span class="lineno">  139</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>* class_type : class_to_save_list_) {</div>
+<div class="line"><span class="lineno">  140</span>      <span class="keywordflow">if</span> (obj-&gt;InheritsFrom(class_type)) {</div>
+<div class="line"><span class="lineno">  141</span>        obj-&gt;Write(<span class="stringliteral">&quot;&quot;</span>, TObject::kOverwrite);</div>
+<div class="line"><span class="lineno">  142</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><span class="lineno">  143</span>      }</div>
+<div class="line"><span class="lineno">  144</span>    }</div>
+<div class="line"><span class="lineno">  145</span>  }</div>
+<div class="line"><span class="lineno">  146</span>}</div>
+<div class="ttc" id="aclassroothelper_1_1DataSaver_html_a090e3db8b311cdc8e51dc9ad5cffac58"><div class="ttname"><a href="classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58">roothelper::DataSaver::SaveObject</a></div><div class="ttdeci">void SaveObject(ObjectType *obj, const std::filesystem::path &amp;relative_save_directory, bool create_filesystem_dir=true) const</div><div class="ttdoc">Recursively save a ROOT object and its child primitives.</div><div class="ttdef"><b>Definition</b> <a href="data__saver_8h_source.html#l00102">data_saver.h:102</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -406,7 +417,7 @@ template&lt;<a class="el" href="structroothelper_1_1ContainerWrapper.html">class
 <p class="definition">Definition at line <a class="el" href="data__saver_8cpp_source.html#l00027">27</a> of file <a class="el" href="data__saver_8cpp_source.html">data_saver.cpp</a>.</p>
 <div class="fragment"><div class="line"><span class="lineno">   28</span>                                                                                     {</div>
 <div class="line"><span class="lineno">   29</span>  <a class="code hl_function" href="classroothelper_1_1DataSaver.html#aba2a49179f69be17678be1263abec3da">write_canvas_without_data_saving</a>(c, relative_save_directory);</div>
-<div class="line"><span class="lineno">   30</span>  <a class="code hl_function" href="classroothelper_1_1DataSaver.html#a3efe397cf30ccb324f770d4fcdfccf58">SaveObject</a>(c, relative_save_directory);</div>
+<div class="line"><span class="lineno">   30</span>  <a class="code hl_function" href="classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58">SaveObject</a>(c, relative_save_directory);</div>
 <div class="line"><span class="lineno">   31</span>}</div>
 <div class="ttc" id="aclassroothelper_1_1DataSaver_html_aba2a49179f69be17678be1263abec3da"><div class="ttname"><a href="classroothelper_1_1DataSaver.html#aba2a49179f69be17678be1263abec3da">roothelper::DataSaver::write_canvas_without_data_saving</a></div><div class="ttdeci">void write_canvas_without_data_saving(TCanvas *c, const std::filesystem::path &amp;relative_save_directory=&quot;&quot;) const</div><div class="ttdoc">Print the canvas to disk as PDF and PNG without saving its data to the ROOT file.</div><div class="ttdef"><b>Definition</b> <a href="data__saver_8cpp_source.html#l00033">data_saver.cpp:33</a></div></div>
 </div><!-- fragment -->
