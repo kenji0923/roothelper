@@ -55,7 +55,8 @@ class DataSaver {
    * @param relative_save_directory Target subdirectory inside the ROOT TFile.
    */
   template <class ObjectType>
-  void SaveObject(ObjectType* obj, const std::filesystem::path& relative_save_directory) const;
+  void SaveObject(ObjectType* obj, const std::filesystem::path& relative_save_directory,
+                  bool create_filesystem_dir = true) const;
 
   /**
    * @brief Write a canvas to disk as PDF and PNG, and recursively save its contents to the ROOT
@@ -84,7 +85,8 @@ class DataSaver {
   std::filesystem::path create_directories(const std::filesystem::path& relative_path) const;
 
  private:
-  void CreateAndChangeDirectory(const std::filesystem::path& relative_save_directory) const;
+  void CreateAndChangeDirectory(const std::filesystem::path& relative_save_directory,
+                                bool create_filesystem_dir = true) const;
 
   const std::filesystem::path base_directory_;
   std::unique_ptr<TFile> f_write_;
@@ -98,16 +100,18 @@ class DataSaver {
 
 template <class ObjectType>
 void DataSaver::SaveObject(ObjectType* obj,
-                           const std::filesystem::path& relative_save_directory) const {
-  CreateAndChangeDirectory(relative_save_directory);
+                           const std::filesystem::path& relative_save_directory,
+                           bool create_filesystem_dir) const {
+  CreateAndChangeDirectory(relative_save_directory, create_filesystem_dir);
 
-  auto SaveChild = [this](TList* list, const std::filesystem::path& child_dir) {
+  auto SaveChild = [this](TList* list, const std::filesystem::path& child_dir,
+                          bool child_create_filesystem_dir) {
     if (list == nullptr) {
       return;
     }
 
     for (auto* child : *list) {
-      SaveObject(child, child_dir);
+      SaveObject(child, child_dir, child_create_filesystem_dir);
     }
   };
 
@@ -115,18 +119,22 @@ void DataSaver::SaveObject(ObjectType* obj,
     if (obj->InheritsFrom(TClass::GetClass<TCanvas>())) {
       obj->Write("", TObject::kOverwrite);
       SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives(),
-                relative_save_directory / ("data_" + std::string(obj->GetName())));
+                relative_save_directory / ("data_" + std::string(obj->GetName())),
+                false);
     } else {
-      SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives(), relative_save_directory);
+      SaveChild(dynamic_cast<TPad*>(obj)->GetListOfPrimitives(), relative_save_directory,
+                create_filesystem_dir);
     }
   } else if (obj->InheritsFrom(TClass::GetClass<TMultiGraph>())) {
     obj->Write("", TObject::kOverwrite);
     SaveChild(dynamic_cast<TMultiGraph*>(obj)->GetListOfGraphs(),
-              relative_save_directory / ("data_" + std::string(obj->GetName())));
+              relative_save_directory / ("data_" + std::string(obj->GetName())),
+              false);
   } else if (obj->InheritsFrom(TClass::GetClass<THStack>())) {
     obj->Write("", TObject::kOverwrite);
     SaveChild(dynamic_cast<THStack*>(obj)->GetHists(),
-              relative_save_directory / ("data_" + std::string(obj->GetName())));
+              relative_save_directory / ("data_" + std::string(obj->GetName())),
+              false);
   } else {
     for (const auto* class_type : class_to_save_list_) {
       if (obj->InheritsFrom(class_type)) {

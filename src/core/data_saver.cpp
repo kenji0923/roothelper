@@ -51,8 +51,11 @@ std::filesystem::path DataSaver::create_directories(
 }
 
 void DataSaver::CreateAndChangeDirectory(
-    const std::filesystem::path& relative_save_directory) const {
-  std::filesystem::create_directories(base_directory_ / relative_save_directory);
+    const std::filesystem::path& relative_save_directory,
+    bool create_filesystem_dir) const {
+  if (create_filesystem_dir) {
+    std::filesystem::create_directories(base_directory_ / relative_save_directory);
+  }
 
   const std::string relative_root_directory = relative_save_directory.string();
   TDirectory* root_directory = f_write_->GetDirectory(relative_root_directory.c_str());

@@ -53,6 +53,10 @@ int main(int argc, char** argv) {
 
     // Write the canvas (this should save it and its primitives recursively)
     data_saver.WriteCanvas(c, "plots");
+
+    // Test a manually specified save location
+    TCanvas* c_manual = new TCanvas("c_manual_canvas", "Manual Canvas", 800, 600);
+    data_saver.SaveObject(c_manual, "manual_subdir");
   }
 
   // Now verify the root file contents
@@ -129,7 +133,28 @@ int main(int argc, char** argv) {
   std::cout << "Successfully verified TH1 children in 'plots/data_c_test_canvas/data_hs_test/'"
             << std::endl;
 
+  // Verify manual save location in ROOT file
+  TCanvas* c_manual_read = nullptr;
+  f->GetObject("manual_subdir/c_manual_canvas", c_manual_read);
+  if (!c_manual_read) {
+    std::cerr << "Assertion failed: TCanvas 'c_manual_canvas' not found in manual_subdir/" << std::endl;
+    return 1;
+  }
+  std::cout << "Successfully verified manual TCanvas in ROOT file" << std::endl;
+
   f->Close();
+
+  // Verify host filesystem directories
+  if (!std::filesystem::exists(test_dir / "manual_subdir")) {
+    std::cerr << "Assertion failed: manual_subdir was not created on the host filesystem!" << std::endl;
+    return 1;
+  }
+  if (std::filesystem::exists(test_dir / "plots/data_c_test_canvas")) {
+    std::cerr << "Assertion failed: recursive directory 'data_c_test_canvas' was created on the host filesystem!" << std::endl;
+    return 1;
+  }
+  std::cout << "Successfully verified host filesystem directories!" << std::endl;
+
   std::cout << "All assertions passed successfully!" << std::endl;
   return 0;
 }
