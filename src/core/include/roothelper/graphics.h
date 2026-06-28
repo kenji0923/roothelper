@@ -451,6 +451,28 @@ TGraph* ConvertGraphYaxis(TGraph** g, ConverterType conversion_expr, const std::
 
 TLatex* DrawLatexNdc(double x0, double y0, const std::string& content);
 
+// --------------------------------------------------------------------------- //
+// Sans-serif text symbols
+// --------------------------------------------------------------------------- //
+// TLatex draws Greek codes such as "#mu" from the (serif, slanted) Symbol font.
+// These Latin-1 bytes are drawn in the *current* text font instead, so with font
+// 42 they render upright and sans-serif. Prefer these namespaced constants to a
+// preprocessor macro: a macro cannot live in a namespace and so risks clashing
+// with names from other headers, whereas roothelper::kMicro cannot. Build the
+// string at run time, e.g.:
+//   axis->SetTitle((std::string("t (") + roothelper::kMicro + "s)").c_str());
+inline constexpr char kMicro[] = "\xB5";      // micro sign  U+00B5
+inline constexpr char kDegree[] = "\xB0";     // degree sign U+00B0
+inline constexpr char kPlusMinus[] = "\xB1";  // plus-minus  U+00B1
+
 }  // namespace roothelper
+
+// Only when you need compile-time concatenation with adjacent string literals --
+// e.g. "t (" RH_MICRO "s)" -- reach for a macro (named constants do not concatenate
+// that way). Macros ignore namespaces, so this one is prefixed RH_ and #ifndef-
+// guarded to minimise collisions; #undef it on your side if it ever clashes.
+#ifndef RH_MICRO
+#define RH_MICRO "\xB5"
+#endif
 
 #endif  // ROOTHELPER_GRAPHICS_H_
