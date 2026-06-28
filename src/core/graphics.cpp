@@ -69,7 +69,8 @@ void Prepare() {
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
   gStyle->SetOptTitle(0);
-  g_latex.SetTextSize(GraphicsSize::current.text_size * 0.8);
+  g_latex.SetTextFont(42);  // normal Helvetica (not bold, font 62)
+  g_latex.SetTextSize(GraphicsSize::current.text_size);  // match axis-title size
 }
 
 std::pair<unsigned int, unsigned int> GetDefaultNPad(unsigned int n_plot) {
