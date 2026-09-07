@@ -41,8 +41,8 @@ int main() {
     gPad->SetLogy(mode[1]);
     gPad->Update();
     roothelper::SetAxes(&graph);
-    passed &= CheckOffset(graph.GetXaxis(), mode[0] ? -0.075 : 0.012, "X offset");
-    passed &= CheckOffset(graph.GetYaxis(), mode[1] ? -0.075 : 0.018, "Y offset");
+    passed &= CheckOffset(graph.GetXaxis(), mode[0] ? 0.001 : 0.012, "X offset");
+    passed &= CheckOffset(graph.GetYaxis(), mode[1] ? 0.001 : 0.018, "Y offset");
     // Styling a different, linear pad must not inherit the first pad's log state.
     canvas.cd(2);
     other.Draw("ALP");

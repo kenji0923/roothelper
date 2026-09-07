@@ -144,7 +144,8 @@ void SetAxes(GraphType* graph_object, Option_t* draw_option = "");
 * **Purpose**: High-level routine that styles the X, Y, and Z axes on a graph/histogram and calls layout optimizations.
 
 `SetXAxis` and `SetYAxis` detect log scaling on the active pad and use a
-label offset of `-0.075` for that axis. Linear axes use the corresponding
+label offset of `0.001` for that axis, keeping labels outside the frame.
+Linear axes use the corresponding
 `gStyle` label offset. Set the pad's log flags before styling; restyle after
 changing them. This is not a repaint callback. See
 [usage and verification commands](../../doc/command.html).

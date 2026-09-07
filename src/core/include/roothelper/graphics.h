@@ -29,7 +29,8 @@
 
 namespace roothelper {
 
-inline constexpr double kLogAxisLabelOffset = -0.075;
+// Keep labels outside the frame while reducing the default axis-to-label gap.
+inline constexpr double kLogAxisLabelOffset = 0.001;
 
 class IContainerWrapper;
 
