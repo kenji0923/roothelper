@@ -195,6 +195,7 @@ Styling &amp; Axis Solvers</h2>
 </div><!-- fragment --><ul>
 <li><b>Purpose</b>: High-level routine that styles the X, Y, and Z axes on a graph/histogram and calls layout optimizations.</li>
 </ul>
+<p><code>SetXAxis</code> and <code>SetYAxis</code> detect log scaling on the active pad and use a label offset of <code>-0.010</code> for that axis to reduce the label gap. Linear axes use the corresponding <code>gStyle</code> label offset. Set the pad's log flags before styling; restyle after changing them. This is not a repaint callback. See <a href="../../doc/command.html">usage and verification commands</a>.</p>
 <div class="fragment"><div class="line"><span class="keywordtype">void</span> OptimizeYAxisLayout(TAxis* y_axis);</div>
 </div><!-- fragment --><ul>
 <li><b>Purpose</b>: Solves the Y-axis label width dynamically and applies a constant-gap offset formula: <code>title_offset = (distance_from_axis / title_size) * 0.60 + 0.20</code> This ensures the visual gap between labels and the Y-axis title remains perfectly consistent.</li>
