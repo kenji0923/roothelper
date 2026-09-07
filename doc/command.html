@@ -35,5 +35,17 @@ cd "$roothelper_test_dir"
 /tmp/roothelper-log-offset-build/exec/TestGraphics
 /tmp/roothelper-log-offset-build/exec/TestDataSaver
 </code></pre>
+<section>
+<h2>11 pt preset</h2>
+<p>Set <code>GraphicsSize::current = kGraphicsSize11pt</code> before
+<code>Prepare()</code> and canvas creation. The alias <code>g_size_11pt</code>
+is also available. Text is scaled by 11/8 relative to the 8 pt preset at the
+same publication size. Final point size depends on the inserted figure size.</p>
+<p>Single-plot check in the grant document project (run from that project root):</p>
+<pre><code>ROOT_INCLUDE_PATH=/home/kshu/work/document/2026KibanB/script/roothelper root -l -b -q 'figs/script/plot_huaxu_he4k.C("figs/script/huaxu_he4k_3ev.csv","figs/huaxu_he4k_3ev_11pt",11)'
+</code></pre>
+<p>This produces standalone PDF, PNG and ROOT files for visual checking of
+axis labels, titles and margins. It does not update the composite figure.</p>
+</section>
 </body>
 </html>

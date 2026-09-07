@@ -66,8 +66,15 @@ inline const GraphicsSize kGraphicsSize10pt = {
     700, 500, 0.06494, 1.15, 1.20, 0.2, 0.01, 0.005, 0.155, 0.15, 0.06, 0.07, 0.20, 0.025, 0.01,
 };
 
+// Nominal 11 pt at the same publication scale as the 8 pt preset.
+inline const GraphicsSize kGraphicsSize11pt = {
+    700, 500, 0.05195 * 11.0 / 8.0, 1.1, 1.20, 0.2, 0.03, 0.005,
+    0.18, 0.18, 0.085, 0.07, 0.22, 0.0275, 0.011,
+};
+
 inline const GraphicsSize g_size_8pt = kGraphicsSize8pt;
 inline const GraphicsSize g_size_10pt = kGraphicsSize10pt;
+inline const GraphicsSize g_size_11pt = kGraphicsSize11pt;
 
 /**
  * @brief Initialize global style, font settings, and layout parameters for ROOT.
