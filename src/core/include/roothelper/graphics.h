@@ -16,6 +16,7 @@
 #include <TMultiGraph.h>
 #include <TPad.h>
 #include <TPaletteAxis.h>
+#include <TStyle.h>
 
 #include <algorithm>
 #include <cmath>
@@ -27,6 +28,8 @@
 #include <vector>
 
 namespace roothelper {
+
+inline constexpr double kLogAxisLabelOffset = -0.075;
 
 class IContainerWrapper;
 
@@ -145,7 +148,10 @@ TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width =
                    double height = 0.2);
 
 /**
- * @brief Style the X-axis of a ROOT object.
+ * @brief Style the X-axis of a ROOT object using the active pad's log setting.
+ *
+ * Call after SetLogx(). Log axes use kLogAxisLabelOffset; linear axes use the
+ * current ROOT style. Call again after changing the pad's log setting.
  */
 template <class GraphType>
 void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
@@ -176,6 +182,7 @@ void SetXAxis(GraphType* graph_object, Option_t* draw_option = "") {
   TAxis* axis = graph_object->GetXaxis();
   axis->SetTitleSize(GraphicsSize::current.text_size);
   axis->SetLabelSize(GraphicsSize::current.text_size);
+  axis->SetLabelOffset(gPad->GetLogx() ? kLogAxisLabelOffset : gStyle->GetLabelOffset("X"));
   axis->SetTitleOffset(GraphicsSize::current.title_offset_x);
   axis->SetNdivisions(510);
   axis->SetDecimals(true);
@@ -196,6 +203,12 @@ double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true, bool use_pad_limi
 void OptimizeYAxisLayout(TAxis* y_axis);
 double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
+/**
+ * @brief Style the Y-axis using the active pad's log setting, then optimize layout.
+ *
+ * Call after SetLogy(). Log axes use kLogAxisLabelOffset; linear axes use the
+ * current ROOT style. Call again after changing the pad's log setting.
+ */
 template <class GraphType>
 void SetYAxis(GraphType* graph_object) {
   TAxis* axis = graph_object->GetYaxis();
@@ -203,6 +216,7 @@ void SetYAxis(GraphType* graph_object) {
 
   axis->SetTitleSize(GraphicsSize::current.text_size);
   axis->SetLabelSize(GraphicsSize::current.text_size);
+  axis->SetLabelOffset(gPad->GetLogy() ? kLogAxisLabelOffset : gStyle->GetLabelOffset("Y"));
   axis->SetNdivisions(505);
   axis->SetDecimals(true);
   axis->CenterTitle();

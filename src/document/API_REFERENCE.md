@@ -143,6 +143,12 @@ void SetAxes(GraphType* graph_object, Option_t* draw_option = "");
 ```
 * **Purpose**: High-level routine that styles the X, Y, and Z axes on a graph/histogram and calls layout optimizations.
 
+`SetXAxis` and `SetYAxis` detect log scaling on the active pad and use a
+label offset of `-0.075` for that axis. Linear axes use the corresponding
+`gStyle` label offset. Set the pad's log flags before styling; restyle after
+changing them. This is not a repaint callback. See
+[usage and verification commands](../../doc/command.html).
+
 ```cpp
 void OptimizeYAxisLayout(TAxis* y_axis);
 ```
@@ -178,4 +184,3 @@ A Windows Batch file mapping local files to the WSL environment.
 * **Features**:
   * Automatically translates UNC and local paths using `WSLENV` path translation flags (`/p`).
   * Launches the interactive `TBrowser` via WSLg using `wsl bash -lc "root -l \"$ROOT_FILE_PATH\" -e \"new TBrowser\""`.
-

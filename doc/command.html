@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>roothelper: log-axis label offsets</title>
+<body>
+<h1>Log-axis label offsets</h1>
+<p><code>SetXAxis</code> and <code>SetYAxis</code> inspect the active pad's
+log setting and set that axis's label offset to <code>-0.075</code>.
+Linear axes use the corresponding label offset from <code>gStyle</code>.
+This also applies through <code>SetAxes</code>. Z-axis behavior is unchanged.</p>
+<p>Make the graph's pad current, enable log scaling, then style the axes:</p>
+<pre><code>canvas-&gt;cd();
+graph-&gt;Draw("ALP");
+gPad-&gt;SetLogx();  // Use SetLogy() for the Y axis, or enable both.
+roothelper::SetAxes(graph);
+</code></pre>
+<p>Detection happens when styling, not on every repaint. After a later
+<code>SetLogx</code> or <code>SetLogy</code> call, call the corresponding styling
+function again. To override an offset, call <code>SetLabelOffset</code> after
+styling. A negative offset moves labels toward, and potentially inside, the frame.</p>
+<h2>Build and verification</h2>
+<p>Run from the repository root with ROOT and CMake available. This builds the
+C++17 library and checks log-X, log-Y, log-log, return to linear axes with
+custom ROOT style defaults, and isolation between pads.</p>
+<pre><code>cmake -S src -B /tmp/roothelper-log-offset-build
+cmake --build /tmp/roothelper-log-offset-build -j2
+/tmp/roothelper-log-offset-build/exec/TestLogAxisLabels
+</code></pre>
+<p>The existing graphics and data-saving smoke checks produce files in a
+temporary working directory:</p>
+<pre><code>roothelper_test_dir=$(mktemp -d /tmp/roothelper-smoke-XXXXXX)
+cd "$roothelper_test_dir"
+/tmp/roothelper-log-offset-build/exec/TestGraphics
+/tmp/roothelper-log-offset-build/exec/TestDataSaver
+</code></pre>
+</body>
+</html>
