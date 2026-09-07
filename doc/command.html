@@ -5,7 +5,7 @@
 <body>
 <h1>Log-axis label offsets</h1>
 <p><code>SetXAxis</code> and <code>SetYAxis</code> inspect the active pad's
-log setting and set that axis's label offset to <code>0.001</code>.
+log setting and set that axis's label offset to <code>-0.010</code>.
 Linear axes use the corresponding label offset from <code>gStyle</code>.
 This also applies through <code>SetAxes</code>. Z-axis behavior is unchanged.</p>
 <p>Make the graph's pad current, enable log scaling, then style the axes:</p>
@@ -17,8 +17,9 @@ roothelper::SetAxes(graph);
 <p>Detection happens when styling, not on every repaint. After a later
 <code>SetLogx</code> or <code>SetLogy</code> call, call the corresponding styling
 function again. To override an offset, call <code>SetLabelOffset</code> after
-styling. The small positive offset keeps labels outside the frame while
-reducing the gap. The former value of -0.075 moved labels inside the frame.</p>
+styling. The offset -0.010 reduces the gap in the reference plot without
+moving its X labels inside. The former value of -0.075 moved them inside;
+0.001 left too much space. Check the rendering when changing font or layout.</p>
 <h2>Build and verification</h2>
 <p>Run from the repository root with ROOT and CMake available. This builds the
 C++17 library and checks log-X, log-Y, log-log, return to linear axes with
