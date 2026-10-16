@@ -55,6 +55,7 @@ To support development, testing, and system integration, `roothelper` includes t
 
 * **`rooti`**: A Python command-line wrapper to execute ROOT macro scripts with dynamic argument type inference. It parses list structures, booleans, numbers, and strings from shell inputs, formatting a C++ invocation call like `script_path(arg1, arg2, ...)` and executing ROOT in batch mode (via `root -b -q`).
 * **`CreateRootClangd`**: Automatically creates a local `.clangd` file containing ROOT compilation flags derived from `root-config --cflags`. This resolves ROOT symbols and headers correctly for clangd-based Language Server Protocol (LSP) configurations.
+* **`ProcessPDF`**: Prepares PDF figures for documents and slides: `ProcessPDF fig.pdf [...]` moves the original to `rawpdf/`, rewrites `fig.pdf` with the crop box as the page and all fonts embedded, writes an outlined copy to `olpdf/` and an SVG (sizes in pt) to `svg/`. Needs ghostscript and poppler-utils.
 * **`open_root_browser.bat`**: A Windows batch file designed to integrate Windows Explorer with WSL2. It translates Windows file paths natively and registers a handler, allowing you to double-click `.root` files in Windows to instantly launch a WSL-based interactive ROOT `TBrowser`.
 
 ---
@@ -73,6 +74,8 @@ cmake -S src -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local
 cmake --build build -j
 cmake --install build
 ```
+This also installs the scripts in `script/` to `<prefix>/bin`; add it to `PATH` to use them.
+It also installs the base 14 substitute fonts in `font/` (URW base 35, the ones ghostscript uses; AGPL-3.0 with a font exception) to `<prefix>/share/roothelper/fonts`, and a fontconfig file that uses them instead of Helvetica, Times, Courier, Symbol and Zapf Dingbats. Enable it with `ln -s <prefix>/share/roothelper/fontconfig/99-roothelper-fonts.conf ~/.config/fontconfig/conf.d/`.
 
 ### CMake Setup
 Configure your project with `-DCMAKE_PREFIX_PATH=$HOME/.local`, then:

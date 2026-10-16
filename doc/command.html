@@ -121,5 +121,61 @@ ROOT_INCLUDE_PATH=&lt;build&gt;/src/core/include root -l -b -q lib.C  # gSystem-
 library-mode first calls of <code>SetAxes</code> take about 1.3 ms for listed types and about
 22 ms for others (e.g. <code>TH1S</code>), measured with <code>inst.C</code> in the same way.</p>
 </section>
+<section>
+<h2>PDF figures: outlines and SVG (<code>ProcessPDF</code>)</h2>
+<p><code>script/ProcessPDF</code> is installed to <code>&lt;prefix&gt;/bin</code> with the libraries.
+For each PDF it moves the original to <code>rawpdf/</code>, rewrites the PDF with the crop box as
+the page (ROOT PDFs have an A4 media box and a 90&deg; rotation) and all fonts embedded, writes an
+outlined copy to <code>olpdf/</code> (ghostscript <code>-dNoOutputFonts</code>) and an SVG of that
+copy to <code>svg/</code> (one file per page; width and height in pt):</p>
+<pre><code>export PATH=$HOME/opt/roothelper/bin:$PATH
+ProcessPDF figs/plot.pdf figs/other.pdf
+</code></pre>
+<p>ROOT does not embed fonts. Ghostscript uses Nimbus Sans/Roman/Mono and Standard Symbols PS
+for the base 14 fonts. poppler viewers on AlmaLinux 10 substitute Noto Sans for Symbol (Greek letters
+change shape, <code>&#8747;</code> disappears), so the original is not a reliable reference there unless the fontconfig file below is enabled.</p>
+<p>Check (purpose: confirm that outlining and SVG keep the glyph shapes). Render the original with
+ghostscript and the outputs with poppler and librsvg at 600 dpi, then compare with a 2 px tolerance:</p>
+<pre><code>gs -q -dNOPAUSE -dBATCH -sDEVICE=pnggray -r600 -dUseCropBox -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -sOutputFile=ref.png rawpdf/plot.pdf
+pdftoppm -r 600 -gray -png -singlefile olpdf/plot.pdf o
+rsvg-convert -d 600 -p 600 -b white svg/plot.svg -o s.png
+pdffonts olpdf/plot.pdf    # lists no fonts
+</code></pre>
+<p>Result on LaserLabLinux0 (gs 10.02.1, poppler 24.02): the processed, outlined and SVG files of a
+ROOT plot match the reference with no differing pixels; for a LaTeX PDF the SVG differs only by a
+sub-pixel shift. Inkscape opens the SVG at the PDF page size.</p>
+</section>
+<section>
+<h2>Substitute fonts for the base 14 (<code>font/</code>)</h2>
+<p><code>font/</code> holds the URW base 35 fonts (release 20200910, AGPL-3.0 with a font
+embedding exception, see <code>font/LICENSE</code>) that ghostscript uses for the PDF base 14:
+Nimbus Sans, Nimbus Roman, Nimbus Mono PS, Standard Symbols PS and D050000L, as OpenType.
+Downloaded from the upstream tag (purpose: the same outlines that <code>ProcessPDF</code> produces):</p>
+<pre><code>B=https://raw.githubusercontent.com/ArtifexSoftware/urw-base35-fonts/20200910
+for f in NimbusSans-{Regular,Italic,Bold,BoldItalic} NimbusRoman-{Regular,Italic,Bold,BoldItalic} \
+         NimbusMonoPS-{Regular,Italic,Bold,BoldItalic} StandardSymbolsPS D050000L; do
+  curl -fLO $B/fonts/$f.otf
+done
+curl -fLO $B/LICENSE; curl -fLO $B/COPYING
+</code></pre>
+<p>The installation puts them in <code>&lt;prefix&gt;/share/roothelper/fonts/</code> and writes
+<code>&lt;prefix&gt;/share/roothelper/fontconfig/99-roothelper-fonts.conf</code>, which adds that
+directory and replaces the families Helvetica, Times, Courier, Symbol and Zapf Dingbats by the
+substitutes even when those fonts are installed. Enable it for the user (Linux; Inkscape, Evince
+and other fontconfig programs):</p>
+<pre><code>mkdir -p ~/.config/fontconfig/conf.d
+ln -s ~/opt/roothelper/share/roothelper/fontconfig/99-roothelper-fonts.conf ~/.config/fontconfig/conf.d/
+fc-match Helvetica    # NimbusSans-Regular.otf
+</code></pre>
+<p>Check (purpose: substitutes win over installed fonts). With a scratch <code>HOME</code>
+(<code>XDG_CONFIG_HOME</code>, <code>XDG_DATA_HOME</code>) holding copies of DejaVu renamed to
+Helvetica, Times and Symbol, export an SVG with text in those families and list the fonts:</p>
+<pre><code>inkscape text.svg --export-type=pdf --export-filename=out.pdf
+pdffonts out.pdf
+</code></pre>
+<p>Result (Inkscape 1.x AppImage): without the file the renamed fonts are embedded; with it,
+NimbusSans-Regular, NimbusRoman-Regular and StandardSymbolsPS. On Windows and macOS install the
+OpenType files and choose the Nimbus families by name; the replacement rule is not tested there.</p>
+</section>
 </body>
 </html>

@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# Prepares PDF figures (e.g. from ROOT) for documents and slides.
+#
+# Usage: ProcessPDF FILE.pdf [FILE.pdf ...]
+#
+# For each FILE in directory DIR:
+#   DIR/rawpdf/FILE    the original file (moved here)
+#   DIR/FILE           page = visible area (crop box), no page rotation, all fonts embedded
+#   DIR/olpdf/FILE     same, with text converted to outlines (no fonts)
+#   DIR/svg/FILE.svg   SVG of the outlined PDF; FILE-N.svg per page for multi-page files
+#
+# ROOT does not embed fonts. Ghostscript embeds its metric-compatible substitutes
+# (Helvetica -> Nimbus Sans, Times -> Nimbus Roman, Symbol -> Standard Symbols PS),
+# so the result looks the same in every viewer.
+#
+# Requires ghostscript (gs), poppler (pdfinfo, pdftocairo) and file.
+
+set -euo pipefail
+
+GsPdfwrite=(gs -q -dNOPAUSE -dBATCH -dSAFER -sDEVICE=pdfwrite -dAutoRotatePages=/None)
+
+ProcessFile() {
+  local target_file="$1"
+  if [ ! -f "${target_file}" ]; then
+    echo "${target_file} was not found" >&2
+    return 1
+  fi
+  local mime_type
+  mime_type=$(file --mime-type -b "${target_file}")
+  if [ "${mime_type}" != "application/pdf" ]; then
+    echo "${target_file} is not a PDF file (MIME type: ${mime_type})." >&2
+    return 2
+  fi
+  echo "Convert ${target_file}"
+
+  local file_basename target_dir
+  file_basename="$(basename "${target_file}")"
+  target_dir="$(dirname "${target_file}")"
+  local raw_dir="${target_dir}/rawpdf"
+  local outline_dir="${target_dir}/olpdf"
+  local svg_dir="${target_dir}/svg"
+  local raw_path="${raw_dir}/${file_basename}"
+  local new_path="${target_dir}/${file_basename}"
+  local outline_path="${outline_dir}/${file_basename}"
+  local svg_stem="${svg_dir}/${file_basename%.*}"
+
+  # Called from a "||" list, where set -e is inactive; stop at the first failure explicitly.
+  mkdir -p "${raw_dir}" "${outline_dir}" "${svg_dir}" || return
+  mv "${target_file}" "${raw_path}" || return
+  # Crop box as the page, keeping the orientation; embed all fonts including the base 14.
+  "${GsPdfwrite[@]}" -dUseCropBox -dEmbedAllFonts=true -dSubsetFonts=true \
+    -sOutputFile="${new_path}" -c "<</NeverEmbed []>> setdistillerparams" -f "${raw_path}" || return
+  "${GsPdfwrite[@]}" -dNoOutputFonts -sOutputFile="${outline_path}" "${new_path}" || return
+
+  local n_pages page
+  n_pages=$(pdfinfo "${outline_path}" | awk '/^Pages:/ {print $2}') || return
+  rm -f "${svg_stem}.svg" "${svg_stem}"-[0-9]*.svg
+  for ((page = 1; page <= n_pages; ++page)); do
+    local svg_path="${svg_stem}.svg"
+    if [ "${n_pages}" -gt 1 ]; then svg_path="${svg_stem}-${page}.svg"; fi
+    pdftocairo -svg -f "${page}" -l "${page}" "${outline_path}" "${svg_path}" || return
+    # pdftocairo writes the size without units (px = 1/96 in); the values are in points.
+    sed -i '0,/<svg /s/\(<svg [^>]*width="[0-9.]*\)"\([^>]*height="[0-9.]*\)"/\1pt"\2pt"/' \
+      "${svg_path}" || return
+  done
+  echo "Conversion done"
+}
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") FILE.pdf [FILE.pdf ...]" >&2
+  exit 1
+fi
+status=0
+for target in "$@"; do
+  ProcessFile "${target}" || status=$?
+done
+exit "${status}"
