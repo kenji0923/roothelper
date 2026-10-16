@@ -70,5 +70,29 @@ and finds ROOT (Core, Hist, Gpad) itself. Individual targets
 and <code>::Analysis</code> are also exported. Verified with a consumer project
 built against a scratch install prefix.</p>
 </section>
+<section>
+<h2>Legend placement and axis label space</h2>
+<p>Build, then run the checks in a scratch directory; each writes PNG files for visual
+inspection (run from the repository root):</p>
+<pre><code>cmake -S src -B build &amp;&amp; cmake --build build -j
+mkdir -p /tmp/roothelper-check &amp;&amp; cd /tmp/roothelper-check
+$OLDPWD/build/exec/TestLegendPlacement   # corner choice, SAME objects, text reduction
+$OLDPWD/build/exec/TestAxisLabelSpace    # right-edge clipping, corner overlap, exponent margins
+$OLDPWD/build/exec/TestLogAxisLabels
+</code></pre>
+</section>
+<section>
+<h2>Interpreter (cling) timing</h2>
+<p>Purpose: compare JIT cost of the template API with a non-template (TObject*) variant,
+and of source inclusion with loading the compiled libraries. Per-step times come from
+<code>TStopwatch</code> around <code>gInterpreter-&gt;ProcessLine</code>:</p>
+<pre><code>ROOT_INCLUDE_PATH=&lt;variant root&gt; root -l -b -q inner.C        # #include "roothelper.h" (sources)
+ROOT_INCLUDE_PATH=&lt;build&gt;/src/core/include root -l -b -q lib.C  # gSystem-&gt;Load + headers only
+/usr/bin/time -f %e root -l -b -q user.C                          # whole macro, 7 runs
+</code></pre>
+<p>Result (ROOT 6.36.06): source inclusion about 1.6 s; libraries plus headers about
+0.17 s. First call of a template per type: about 14 ms (source mode) or 47&ndash;58 ms
+(library mode); non-template calls about 1&ndash;8 ms.</p>
+</section>
 </body>
 </html>

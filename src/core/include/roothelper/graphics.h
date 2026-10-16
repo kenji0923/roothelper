@@ -68,8 +68,8 @@ inline const GraphicsSize kGraphicsSize10pt = {
 
 // Nominal 11 pt at the same publication scale as the 8 pt preset.
 inline const GraphicsSize kGraphicsSize11pt = {
-    700, 500, 0.05195 * 11.0 / 8.0, 1.1, 1.20, 0.2, 0.03, 0.005,
-    0.18, 0.18, 0.085, 0.07, 0.22, 0.0275, 0.011,
+    700,    500,   0.05195 * 11.0 / 8.0, 1.1, 1.20, 0.2, 0.03, 0.005, 0.18, 0.18, 0.085, 0.07, 0.22,
+    0.0275, 0.011,
 };
 
 inline const GraphicsSize g_size_8pt = kGraphicsSize8pt;
@@ -143,17 +143,82 @@ double IncreaseLeftMargin(GraphType* graph_object, double scale = 1.0) {
 
 enum class LegendPosition { TopLeft, TopRight, BottomRight, BottomLeft };
 
+// Default gap between a legend and the frame or drawn objects, as a fraction of the pad
+// height. The horizontal gap has the same physical length.
+inline constexpr double kLegendMargin = 0.02;
+
 /**
- * @brief Place a TLegend on the active pad.
- *
- * @param leg_pos Predefined corner position.
- * @param option Draw option.
- * @param width Width of the legend in NDC.
- * @param height Height of the legend in NDC.
- * @return TLegend* Pointer to the created TLegend.
+ * @struct LegendBox
+ * @brief Legend rectangle in pad NDC, anchored at a frame corner.
  */
-TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.3,
-                   double height = 0.2);
+struct LegendBox {
+  LegendPosition position = LegendPosition::TopRight;
+  double x1 = 0.0;
+  double y1 = 0.0;
+  double x2 = 0.0;
+  double y2 = 0.0;
+
+  double Width() const { return x2 - x1; }
+  double Height() const { return y2 - y1; }
+  bool IsEmpty() const { return Width() <= 0.0 || Height() <= 0.0; }
+};
+
+/**
+ * @brief Find the largest free rectangle anchored at a frame corner of the active pad.
+ *
+ * Every object drawn on the pad (including those drawn with "SAME") is rasterized: graphs,
+ * multigraphs, stacks, histograms, functions, lines, boxes, markers, texts and panes. The box
+ * keeps `margin` from the frame and from the drawn objects. Area is measured in pixels.
+ *
+ * @param corner Frame corner the box starts from.
+ * @param margin Gap as a fraction of the pad height.
+ * @param ignore Object excluded from the occupancy (e.g. the legend being placed).
+ * @return LegendBox Empty box if the corner itself is occupied.
+ */
+LegendBox GetMaxLegendBox(LegendPosition corner, double margin = kLegendMargin,
+                          const TObject* ignore = nullptr);
+
+/**
+ * @brief Find the corner whose free rectangle is the largest.
+ */
+LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr);
+
+/**
+ * @brief Measure the size that a legend needs at a given text size.
+ *
+ * @return std::pair<double, double> Width and height in pad NDC.
+ */
+std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size);
+
+/**
+ * @brief Size and place a legend so that it does not overlap drawn objects.
+ *
+ * The legend is shrunk to its content at `text_size`. Among the corners where it fits, the one
+ * with the largest free rectangle is used. If it fits nowhere, the text is reduced just enough
+ * to fit in the best corner. The legend itself is ignored when measuring occupancy.
+ *
+ * @param leg Legend to place. Its entries must be filled.
+ * @param corner Use only this corner if given.
+ */
+TLegend* PlaceLegend(TLegend* leg, double margin = kLegendMargin,
+                     double text_size = GraphicsSize::current.text_size);
+TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin = kLegendMargin,
+                     double text_size = GraphicsSize::current.text_size);
+
+/**
+ * @brief Build a legend from the active pad and place it automatically.
+ */
+TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin);
+
+/**
+ * @brief Build a legend in a given corner of the active pad.
+ *
+ * With width or height <= 0 (default), the legend is sized to its content and the text is
+ * reduced only if the content exceeds the free rectangle at that corner. Otherwise the given
+ * size in NDC is used as is.
+ */
+TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.0,
+                   double height = 0.0);
 
 /**
  * @brief Style the X-axis of a ROOT object using the active pad's log setting.
@@ -208,7 +273,17 @@ double GetMaxLabelWidthNdc(TAxis* axis, bool is_y_axis = true, bool use_pad_limi
 /**
  * @brief Dynamically optimize the left margin and Y-axis title offset for Y labels.
  */
-void OptimizeYAxisLayout(TAxis* y_axis);
+void OptimizeYAxisLayout(TAxis* y_axis, double extra_label_shift = 0.0);
+
+/**
+ * @brief Keep X and Y tick labels inside the pad and apart from each other.
+ *
+ * Widens the right margin when the last X label would be clipped at the pad edge. When the
+ * first X label and the lowest Y label overlap at the bottom-left corner, moves the X labels
+ * down and the Y labels left by the same distance, with titles and margins following.
+ * Called by SetYAxis (and so SetAxes) after the axes are styled.
+ */
+void AdjustAxisLabelSpace(TAxis* x_axis, TAxis* y_axis);
 double GetYaxisLabelWidthNdc(IContainerWrapper* obj);
 
 /**
@@ -230,6 +305,7 @@ void SetYAxis(GraphType* graph_object) {
   axis->CenterTitle();
 
   OptimizeYAxisLayout(axis);
+  AdjustAxisLabelSpace(graph_object->GetXaxis(), axis);
 }
 
 template <class GraphType>

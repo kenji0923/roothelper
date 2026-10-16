@@ -151,11 +151,49 @@ changing them. This is not a repaint callback. See
 [usage and verification commands](../../doc/command.html).
 
 ```cpp
-void OptimizeYAxisLayout(TAxis* y_axis);
+void OptimizeYAxisLayout(TAxis* y_axis, double extra_label_shift = 0.0);
 ```
 * **Purpose**: Solves the Y-axis label width dynamically and applies a constant-gap offset formula:
   `title_offset = (distance_from_axis / title_size) * 0.60 + 0.20`
   This ensures the visual gap between labels and the Y-axis title remains perfectly consistent.
+  `extra_label_shift` (NDC) adds to the distance when the labels were moved away from the axis.
+
+```cpp
+void AdjustAxisLabelSpace(TAxis* x_axis, TAxis* y_axis);
+```
+* **Purpose**: Called by `SetYAxis` (and so `SetAxes`). Widens the right margin when the
+  last X label would be clipped at the pad edge. When the first X label and the lowest Y
+  label overlap at the bottom-left corner, moves X labels down and Y labels left by the same
+  distance; the X title, bottom margin and Y title follow. When TGaxis draws an exponent
+  factor (`x10^{n}`, same decision rule as TGaxis including `SetMaxDigits` and
+  `gStyle->SetExponentOffset`), widens the right margin for the X factor right of the axis
+  end and sets the top margin for the Y factor above the axis (replacing the former fixed
+  0.085). Label positions follow TGaxis geometry for linear and log axes (font 42).
+
+### Legend placement
+
+```cpp
+TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin);
+TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.0, double height = 0.0);
+TLegend* PlaceLegend(TLegend* leg, double margin = kLegendMargin, double text_size = GraphicsSize::current.text_size);
+TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin = kLegendMargin, double text_size = ...);
+LegendBox GetMaxLegendBox(LegendPosition corner, double margin = kLegendMargin, const TObject* ignore = nullptr);
+LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr);
+std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size);
+```
+* **Occupancy**: all primitives of the active pad are rasterized, including objects drawn
+  with `SAME`, members of `TMultiGraph`/`THStack`, fit functions, lines, boxes, markers,
+  texts and panes (`TPaveText`, other legends). Empty frame histograms are ignored.
+* **Margin**: `kLegendMargin = 0.02` of the pad height, kept from the frame and from every
+  drawn object; the horizontal gap has the same physical length.
+* **`GetMaxLegendBox`**: largest-area free box anchored at the given corner.
+  **`FindMaxLegendBox`**: the corner with the largest such box.
+* **`PutLegend()` / `PlaceLegend`**: the legend is sized to its content (widest label, rows,
+  columns) at the target text size, which is not enlarged. Among corners where it fits, the
+  one with the most free area is chosen. Only when it fits nowhere is the text reduced, by
+  the smallest factor that fits the best corner.
+* **`PutLegend(corner)`**: same sizing restricted to one corner. Giving `width` and `height`
+  (> 0) keeps the former fixed-size behavior.
 
 ---
 

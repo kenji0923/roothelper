@@ -10,3 +10,9 @@ target_link_libraries(TestDataSaver PRIVATE
 
 add_executable(TestLogAxisLabels test_log_axis_labels.cpp)
 target_link_libraries(TestLogAxisLabels PRIVATE RootHelper)
+
+add_executable(TestLegendPlacement test_legend_placement.cpp)
+target_link_libraries(TestLegendPlacement PRIVATE RootHelper)
+
+add_executable(TestAxisLabelSpace test_axis_label_space.cpp)
+target_link_libraries(TestAxisLabelSpace PRIVATE RootHelper)
