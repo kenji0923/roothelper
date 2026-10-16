@@ -67,8 +67,22 @@ Include the unified header file in your code:
 #include <roothelper/roothelper.h>
 ```
 
-### CMake Setup
-Link your target against `RootHelper`:
-```cmake
-target_link_libraries(YourExecutable PRIVATE RootHelper)
+### Installation
+```bash
+cmake -S src -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local
+cmake --build build -j
+cmake --install build
 ```
+
+### CMake Setup
+Configure your project with `-DCMAKE_PREFIX_PATH=$HOME/.local`, then:
+```cmake
+find_package(roothelper REQUIRED)
+target_link_libraries(YourExecutable PRIVATE roothelper::RootHelper)
+```
+
+### ROOT Macros
+```bash
+export ROOT_INCLUDE_PATH=$HOME/.local/include/roothelper:$ROOT_INCLUDE_PATH
+```
+and `#include "roothelper.h"` in the macro.

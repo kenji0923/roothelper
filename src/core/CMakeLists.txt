@@ -1,19 +1,31 @@
+include(GNUInstallDirs)
+
+
 add_library(DataSaver data_saver.cpp)
-target_include_directories(DataSaver PUBLIC include)
+target_include_directories(DataSaver PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(DataSaver PUBLIC
     ROOT::Gpad
 )
 
 
 add_library(Graphics graphics.cpp)
-target_include_directories(Graphics PUBLIC include)
+target_include_directories(Graphics PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(Graphics PUBLIC
     ROOT::Gpad
 )
 
 
 add_library(Container container.cpp)
-target_include_directories(Container PUBLIC include)
+target_include_directories(Container PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(Container PUBLIC
     ROOT::Gpad
     Graphics
@@ -21,14 +33,20 @@ target_link_libraries(Container PUBLIC
 
 
 add_library(Analysis analysis.cpp)
-target_include_directories(Analysis PUBLIC include)
+target_include_directories(Analysis PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(Analysis PUBLIC
     ROOT::Hist
 )
 
 
 add_library(RootHelper INTERFACE)
-target_include_directories(RootHelper INTERFACE include)
+target_include_directories(RootHelper INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(RootHelper INTERFACE
     DataSaver
     Graphics
@@ -63,31 +81,18 @@ target_sources(RootHelper PUBLIC
 )
 
 
-include(GNUInstallDirs)
-
 install(
     TARGETS
 	DataSaver
 	Graphics
 	Container
 	Analysis
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
-)
-
-install(
-    TARGETS RootHelper
-    FILE_SET header
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-)
-
-install(
-    TARGETS RootHelper
-    FILE_SET top_header_for_interpreter
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-)
-
-install(
-    TARGETS RootHelper
-    FILE_SET source_for_interpreter
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/src
+	RootHelper
+    EXPORT roothelperTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    FILE_SET header DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    FILE_SET top_header_for_interpreter DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    FILE_SET source_for_interpreter DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/src
 )

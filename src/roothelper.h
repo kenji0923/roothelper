@@ -8,12 +8,12 @@
 #define ROOTHELPER_USED_IN_INTERPRETER
 
 #include "analysis.h"
+#include "graphics.h"
 #include "container.h"
 #include "data_saver.h"
-#include "graphics.h"
 #include "src/analysis.cpp"
+#include "src/graphics.cpp"
 #include "src/container.cpp"
 #include "src/data_saver.cpp"
-#include "src/graphics.cpp"
 
 #endif  // ROOTHELPER_SRC_INTERPRETER_H_

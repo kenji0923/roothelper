@@ -47,5 +47,28 @@ same publication size. Final point size depends on the inserted figure size.</p>
 <p>This produces standalone PDF, PNG and ROOT files for visual checking of
 axis labels, titles and margins. It does not update the composite figure.</p>
 </section>
+<section>
+<h2>Install to the home directory</h2>
+<p>Build and install under <code>~/.local</code> (run from the repository root):</p>
+<pre><code>cmake -S src -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local
+cmake --build build -j
+cmake --install build
+</code></pre>
+<p>This installs headers to <code>~/.local/include/roothelper/</code> and
+shared libraries to <code>~/.local/lib64/roothelper/</code>.</p>
+<p>ROOT macros: put <code>export ROOT_INCLUDE_PATH=$HOME/.local/include/roothelper:$ROOT_INCLUDE_PATH</code>
+in <code>~/.bashrc</code> and write <code>#include "roothelper.h"</code> in the macro.
+Cling compiles the sources, so no library is loaded.</p>
+<p>CMake projects: configure with <code>-DCMAKE_PREFIX_PATH=$HOME/.local</code>
+(or export <code>CMAKE_PREFIX_PATH</code>) and write:</p>
+<pre><code>find_package(roothelper REQUIRED)
+target_link_libraries(your_target PRIVATE roothelper::RootHelper)
+</code></pre>
+<p>The package config is installed to <code>~/.local/lib64/cmake/roothelper/</code>
+and finds ROOT (Core, Hist, Gpad) itself. Individual targets
+<code>roothelper::Graphics</code>, <code>::Container</code>, <code>::DataSaver</code>
+and <code>::Analysis</code> are also exported. Verified with a consumer project
+built against a scratch install prefix.</p>
+</section>
 </body>
 </html>

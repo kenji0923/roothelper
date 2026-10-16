@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 
 
 project(roothelper)
@@ -25,4 +25,25 @@ else()
     add_subdirectory(document)
     add_subdirectory(core)
     add_subdirectory(exec)
+
+    include(CMakePackageConfigHelpers)
+
+    set(ROOTHELPER_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+
+    install(
+        EXPORT roothelperTargets
+        NAMESPACE roothelper::
+        DESTINATION ${ROOTHELPER_CMAKE_DIR}
+    )
+
+    configure_package_config_file(
+        cmake/roothelperConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/roothelperConfig.cmake
+        INSTALL_DESTINATION ${ROOTHELPER_CMAKE_DIR}
+    )
+
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/roothelperConfig.cmake
+        DESTINATION ${ROOTHELPER_CMAKE_DIR}
+    )
 endif()
