@@ -82,7 +82,15 @@ target_link_libraries(YourExecutable PRIVATE roothelper::RootHelper)
 ```
 
 ### ROOT Macros
+Library mode (recommended): the installed header loads the compiled libraries itself.
 ```bash
-export ROOT_INCLUDE_PATH=$HOME/.local/include/roothelper:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=$HOME/.local/include:$ROOT_INCLUDE_PATH
 ```
-and `#include "roothelper.h"` in the macro.
+```cpp
+#include <roothelper/roothelper.h>   // about 0.2 s instead of 1.6 s for source mode
+```
+For ACLiC (`root macro.C+`), also load the libraries at startup, as in
+[src/auxiliary/rootlogon.C](src/auxiliary/rootlogon.C).
+Source mode compiles the sources in the interpreter and needs no libraries:
+`#include <roothelper/roothelper_source.h>`, or `#include "roothelper.h"` with the
+repository root in `ROOT_INCLUDE_PATH`.

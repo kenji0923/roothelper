@@ -27,6 +27,13 @@
 #include <utility>
 #include <vector>
 
+class TGraphErrors;
+class TGraphAsymmErrors;
+class THStack;
+class TH1I;
+class TH2I;
+class TProfile;
+
 namespace roothelper {
 
 // Keep labels outside the frame while reducing the default axis-to-label gap.
@@ -441,6 +448,25 @@ void SetAxes(GraphType* graph_object, Option_t* draw_option = "") {
   gPad->Modified();
   gPad->Update();
 }
+
+// Instantiations compiled into the library for common types. Code using these types calls
+// the compiled functions instead of instantiating the templates; in the ROOT interpreter this
+// avoids JIT compilation (about 50 ms per type with ROOT 6.36). Other types still work through
+// implicit instantiation. Source mode (roothelper_source.h) compiles everything in place.
+#define ROOTHELPER_FOR_EACH_AXIS_TYPE(X)                                                     \
+  X(TGraph)                                                                                  \
+  X(TGraphErrors) X(TGraphAsymmErrors) X(TH1) X(TH1F) X(TH1D) X(TH1I) X(TH2) X(TH2F) X(TH2D) \
+      X(TH2I) X(TProfile) X(TMultiGraph) X(THStack) X(TGraph2D)
+
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#define ROOTHELPER_DECLARE_AXIS_INSTANTIATIONS(T)                             \
+  extern template void SetXAxis<T>(T * graph_object, Option_t * draw_option); \
+  extern template void SetYAxis<T>(T * graph_object);                         \
+  extern template void SetZAxis<T>(T * graph_object);                         \
+  extern template void SetAxes<T>(T * graph_object, Option_t * draw_option);
+ROOTHELPER_FOR_EACH_AXIS_TYPE(ROOTHELPER_DECLARE_AXIS_INSTANTIATIONS)
+#undef ROOTHELPER_DECLARE_AXIS_INSTANTIATIONS
+#endif
 
 TLine* DrawHorizontalLine(double y);
 TLine* DrawVerticalLine(double x);

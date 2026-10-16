@@ -54,11 +54,22 @@ axis labels, titles and margins. It does not update the composite figure.</p>
 cmake --build build -j
 cmake --install build
 </code></pre>
-<p>This installs headers to <code>~/.local/include/roothelper/</code> and
-shared libraries to <code>~/.local/lib64/roothelper/</code>.</p>
-<p>ROOT macros: put <code>export ROOT_INCLUDE_PATH=$HOME/.local/include/roothelper:$ROOT_INCLUDE_PATH</code>
-in <code>~/.bashrc</code> and write <code>#include "roothelper.h"</code> in the macro.
-Cling compiles the sources, so no library is loaded.</p>
+<p>This installs headers to <code>~/.local/include/roothelper/</code> and shared
+libraries <code>libroothelper_{graphics,container,data_saver,analysis}.so</code> (RPATH
+<code>$ORIGIN</code>) to <code>~/.local/lib64/roothelper/</code>. It also writes
+<code>cling_libraries.h</code> with the absolute library paths of the chosen prefix.</p>
+<p>ROOT macros, library mode: put
+<code>export ROOT_INCLUDE_PATH=$HOME/.local/include:$ROOT_INCLUDE_PATH</code> in
+<code>~/.bashrc</code> and write <code>#include &lt;roothelper/roothelper.h&gt;</code>. In cling
+the header loads the libraries; no <code>gROOT</code> or <code>gSystem</code> call is needed.
+For ACLiC (<code>root macro.C+</code>) also load the libraries at startup with
+<code>gROOT-&gt;ProcessLine("#include &lt;roothelper/cling_libraries.h&gt;")</code> in
+<code>~/.rootlogon.C</code> (see <code>src/auxiliary/rootlogon.C</code>); otherwise loading the
+compiled macro fails with an undefined <code>roothelper::GraphicsSize::current</code>.</p>
+<p>Source mode (no libraries, slower): <code>#include &lt;roothelper/roothelper_source.h&gt;</code>.</p>
+<p>Checked with a scratch prefix: interpreted macro 0.28 s (source mode 1.7 s), ACLiC with
+the logon, <code>cmake --install --prefix</code> relocation, and a CMake project including
+<code>roothelper.h</code> from two files.</p>
 <p>CMake projects: configure with <code>-DCMAKE_PREFIX_PATH=$HOME/.local</code>
 (or export <code>CMAKE_PREFIX_PATH</code>) and write:</p>
 <pre><code>find_package(roothelper REQUIRED)
@@ -93,6 +104,9 @@ ROOT_INCLUDE_PATH=&lt;build&gt;/src/core/include root -l -b -q lib.C  # gSystem-
 <p>Result (ROOT 6.36.06): source inclusion about 1.6 s; libraries plus headers about
 0.17 s. First call of a template per type: about 14 ms (source mode) or 47&ndash;58 ms
 (library mode); non-template calls about 1&ndash;8 ms.</p>
+<p>With explicit instantiations in the library (<code>ROOTHELPER_FOR_EACH_AXIS_TYPE</code>),
+library-mode first calls of <code>SetAxes</code> take about 1.3 ms for listed types and about
+22 ms for others (e.g. <code>TH1S</code>), measured with <code>inst.C</code> in the same way.</p>
 </section>
 </body>
 </html>

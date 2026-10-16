@@ -142,6 +142,11 @@ TCanvas* CreateCanvas(const std::string& name, const std::string& title, unsigne
 void SetAxes(GraphType* graph_object, Option_t* draw_option = "");
 ```
 * **Purpose**: High-level routine that styles the X, Y, and Z axes on a graph/histogram and calls layout optimizations.
+* **Compiled instantiations**: `SetXAxis`, `SetYAxis`, `SetZAxis` and `SetAxes` are compiled into
+  the library for the types in `ROOTHELPER_FOR_EACH_AXIS_TYPE` (TGraph, TGraphErrors,
+  TGraphAsymmErrors, TH1, TH1F, TH1D, TH1I, TH2, TH2F, TH2D, TH2I, TProfile, TMultiGraph,
+  THStack, TGraph2D) and declared `extern template`, so callers and the ROOT interpreter use
+  them without instantiating. Other types are instantiated as usual.
 
 `SetXAxis` and `SetYAxis` detect log scaling on the active pad and use a
 label offset of `-0.010` for that axis to reduce the label gap.

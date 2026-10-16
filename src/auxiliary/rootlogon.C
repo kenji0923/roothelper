@@ -1,17 +1,12 @@
-#include <TInterpreter.h>
-#include <TSystem.h>
+// Example ~/.rootlogon.C for an installed roothelper (library mode).
+//
+// Macros only need ROOT_INCLUDE_PATH to contain <prefix>/include and
+//   #include <roothelper/roothelper.h>
+// which loads the libraries itself. Loading them here as well lets ACLiC (macro.C+) link
+// compiled macros against them; it costs little at startup.
 
-
-/**
- * Add the content of rootlogon() to your function in rootlogon.C.
- */
-void rootlogon()
-{
-    /**
-     * Modify this to the installed path of roothelper
-     */
-    const char* roothelper_include_path = "-I/usr/local/include/roothelper";
-
-    gInterpreter->AddIncludePath(roothelper_include_path);
-    gSystem->AddIncludePath(roothelper_include_path);
+void rootlogon() {
+  // Uncomment if ROOT_INCLUDE_PATH is not set, adjusting the prefix:
+  // gInterpreter->AddIncludePath("/usr/local/include");
+  gROOT->ProcessLine("#include <roothelper/cling_libraries.h>");
 }

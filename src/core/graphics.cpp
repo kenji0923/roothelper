@@ -8,7 +8,11 @@
 #include <TFrame.h>
 #include <TGaxis.h>
 #include <TGraph.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
+#include <TH1I.h>
 #include <TH2.h>
+#include <TH2I.h>
 #include <THLimitsFinder.h>
 #include <THStack.h>
 #include <THashList.h>
@@ -22,6 +26,7 @@
 #include <TMultiGraph.h>
 #include <TPad.h>
 #include <TPave.h>
+#include <TProfile.h>
 #include <TSpline.h>
 #include <TString.h>
 #include <TStyle.h>
@@ -1280,5 +1285,15 @@ double FindX(const TGraph* g, double y, double x_start, double x_end) {
 TLatex* DrawLatexNdc(double x0, double y0, const std::string& content) {
   return g_latex.DrawLatexNDC(x0, y0, content.c_str());
 }
+
+#ifndef ROOTHELPER_USED_IN_INTERPRETER
+#define ROOTHELPER_INSTANTIATE_AXIS_FUNCTIONS(T)                       \
+  template void SetXAxis<T>(T * graph_object, Option_t * draw_option); \
+  template void SetYAxis<T>(T * graph_object);                         \
+  template void SetZAxis<T>(T * graph_object);                         \
+  template void SetAxes<T>(T * graph_object, Option_t * draw_option);
+ROOTHELPER_FOR_EACH_AXIS_TYPE(ROOTHELPER_INSTANTIATE_AXIS_FUNCTIONS)
+#undef ROOTHELPER_INSTANTIATE_AXIS_FUNCTIONS
+#endif
 
 }  // namespace roothelper
