@@ -8,13 +8,16 @@
 
 #define ROOTHELPER_USED_IN_INTERPRETER
 
+// Order matters: container.h uses graphics.h without including it in this mode.
+// clang-format off
 #include "analysis.h"
+#include "graphics.h"
 #include "container.h"
 #include "data_saver.h"
-#include "graphics.h"
 #include "src/analysis.cpp"
+#include "src/graphics.cpp"
 #include "src/container.cpp"
 #include "src/data_saver.cpp"
-#include "src/graphics.cpp"
+// clang-format on
 
 #endif  // ROOTHELPER_SRC_INTERPRETER_H_

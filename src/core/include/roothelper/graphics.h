@@ -157,6 +157,9 @@ inline constexpr double kLegendMargin = 0.02;
 /**
  * @struct LegendBox
  * @brief Legend rectangle in pad NDC, anchored at a frame corner.
+ *
+ * A box may be moved away from its corner along the vertical frame edge (top corners move
+ * down, bottom corners move up) when no corner has room; `shift` gives the distance.
  */
 struct LegendBox {
   LegendPosition position = LegendPosition::TopRight;
@@ -164,10 +167,15 @@ struct LegendBox {
   double y1 = 0.0;
   double x2 = 0.0;
   double y2 = 0.0;
+  // Distance moved from the corner, in NDC (pad-height fraction); 0 at the corner.
+  double shift = 0.0;
+  // Factor applied to the text size (and the box) to fit; 1 when nothing was reduced.
+  double text_scale = 1.0;
 
   double Width() const { return x2 - x1; }
   double Height() const { return y2 - y1; }
   bool IsEmpty() const { return Width() <= 0.0 || Height() <= 0.0; }
+  bool IsShifted() const { return shift > 0.0; }
 };
 
 /**
@@ -180,15 +188,32 @@ struct LegendBox {
  * @param corner Frame corner the box starts from.
  * @param margin Gap as a fraction of the pad height.
  * @param ignore Object excluded from the occupancy (e.g. the legend being placed).
- * @return LegendBox Empty box if the corner itself is occupied.
+ * @param allow_shift Also consider boxes moved along the vertical frame edge (down from a top
+ *        corner, up from a bottom corner); the result reports the coordinates and shift.
+ * @return LegendBox Empty box if no free space is found.
  */
 LegendBox GetMaxLegendBox(LegendPosition corner, double margin = kLegendMargin,
-                          const TObject* ignore = nullptr);
+                          const TObject* ignore = nullptr, bool allow_shift = false);
 
 /**
  * @brief Find the corner whose free rectangle is the largest.
  */
-LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr);
+LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr,
+                           bool allow_shift = false);
+
+/**
+ * @brief Find where a box of a given size (NDC) is placed.
+ *
+ * A corner where the box fits is preferred (most free area first). Otherwise, with
+ * `allow_shift`, the smallest shift from a corner at which it fits is used. If it fits
+ * nowhere, the box is reduced as little as possible (text_scale < 1), over all corners and
+ * shifts.
+ */
+LegendBox FindLegendBox(double width, double height, double margin = kLegendMargin,
+                        const TObject* ignore = nullptr, bool allow_shift = true);
+LegendBox FindLegendBox(LegendPosition corner, double width, double height,
+                        double margin = kLegendMargin, const TObject* ignore = nullptr,
+                        bool allow_shift = true);
 
 /**
  * @brief Measure the size that a legend needs at a given text size.
@@ -200,32 +225,37 @@ std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size);
 /**
  * @brief Size and place a legend so that it does not overlap drawn objects.
  *
- * The legend is shrunk to its content at `text_size`. Among the corners where it fits, the one
- * with the largest free rectangle is used. If it fits nowhere, the text is reduced just enough
- * to fit in the best corner. The legend itself is ignored when measuring occupancy.
+ * The legend is shrunk to its content at `text_size`, then placed as by FindLegendBox: at the
+ * corner with the most free area where it fits, else moved along the frame edge from a
+ * corner (top corners down, bottom corners up) by the smallest distance that fits, else with
+ * the text reduced just enough. The legend itself is ignored when measuring occupancy.
  *
  * @param leg Legend to place. Its entries must be filled.
  * @param corner Use only this corner if given.
+ * @param placement If not null, receives the corner, coordinates, shift and text scale.
+ * @param allow_shift Allow moving away from the corner before reducing the text.
  */
 TLegend* PlaceLegend(TLegend* leg, double margin = kLegendMargin,
-                     double text_size = GraphicsSize::current.text_size);
+                     double text_size = GraphicsSize::current.text_size,
+                     LegendBox* placement = nullptr, bool allow_shift = true);
 TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin = kLegendMargin,
-                     double text_size = GraphicsSize::current.text_size);
+                     double text_size = GraphicsSize::current.text_size,
+                     LegendBox* placement = nullptr, bool allow_shift = true);
 
 /**
- * @brief Build a legend from the active pad and place it automatically.
+ * @brief Build a legend from the active pad and place it automatically (see PlaceLegend).
  */
-TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin);
+TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin,
+                   LegendBox* placement = nullptr);
 
 /**
  * @brief Build a legend in a given corner of the active pad.
  *
- * With width or height <= 0 (default), the legend is sized to its content and the text is
- * reduced only if the content exceeds the free rectangle at that corner. Otherwise the given
- * size in NDC is used as is.
+ * With width or height <= 0 (default), the legend is sized to its content and placed as by
+ * PlaceLegend restricted to that corner. Otherwise the given size in NDC is used as is.
  */
 TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.0,
-                   double height = 0.0);
+                   double height = 0.0, LegendBox* placement = nullptr);
 
 /**
  * @brief Style the X-axis of a ROOT object using the active pad's log setting.
@@ -453,10 +483,11 @@ void SetAxes(GraphType* graph_object, Option_t* draw_option = "") {
 // the compiled functions instead of instantiating the templates; in the ROOT interpreter this
 // avoids JIT compilation (about 50 ms per type with ROOT 6.36). Other types still work through
 // implicit instantiation. Source mode (roothelper_source.h) compiles everything in place.
-#define ROOTHELPER_FOR_EACH_AXIS_TYPE(X)                                                     \
-  X(TGraph)                                                                                  \
-  X(TGraphErrors) X(TGraphAsymmErrors) X(TH1) X(TH1F) X(TH1D) X(TH1I) X(TH2) X(TH2F) X(TH2D) \
-      X(TH2I) X(TProfile) X(TMultiGraph) X(THStack) X(TGraph2D)
+#define ROOTHELPER_FOR_EACH_AXIS_TYPE(X)                                                         \
+  X(TGraph)                                                                                      \
+  X(TGraphErrors)                                                                                \
+  X(TGraphAsymmErrors) X(TH1) X(TH1F) X(TH1D) X(TH1I) X(TH2) X(TH2F) X(TH2D) X(TH2I) X(TProfile) \
+      X(TMultiGraph) X(THStack) X(TGraph2D)
 
 #ifndef ROOTHELPER_USED_IN_INTERPRETER
 #define ROOTHELPER_DECLARE_AXIS_INSTANTIATIONS(T)                             \

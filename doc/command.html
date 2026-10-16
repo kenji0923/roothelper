@@ -66,7 +66,11 @@ For ACLiC (<code>root macro.C+</code>) also load the libraries at startup with
 <code>gROOT-&gt;ProcessLine("#include &lt;roothelper/cling_libraries.h&gt;")</code> in
 <code>~/.rootlogon.C</code> (see <code>src/auxiliary/rootlogon.C</code>); otherwise loading the
 compiled macro fails with an undefined <code>roothelper::GraphicsSize::current</code>.</p>
-<p>Source mode (no libraries, slower): <code>#include &lt;roothelper/roothelper_source.h&gt;</code>.</p>
+<p>Source mode (no libraries, slower): <code>#include &lt;roothelper/roothelper_source.h&gt;</code>.
+After changing headers, check that this mode still compiles, since include order matters
+there (run from a directory holding a macro <code>m.C</code> that includes the header):</p>
+<pre><code>ROOT_INCLUDE_PATH=$HOME/.local/include root -l -b -q m.C
+</code></pre>
 <p>Checked with a scratch prefix: interpreted macro 0.28 s (source mode 1.7 s), ACLiC with
 the logon, <code>cmake --install --prefix</code> relocation, and a CMake project including
 <code>roothelper.h</code> from two files.</p>
@@ -87,7 +91,7 @@ built against a scratch install prefix.</p>
 inspection (run from the repository root):</p>
 <pre><code>cmake -S src -B build &amp;&amp; cmake --build build -j
 mkdir -p /tmp/roothelper-check &amp;&amp; cd /tmp/roothelper-check
-$OLDPWD/build/exec/TestLegendPlacement   # corner choice, SAME objects, text reduction
+$OLDPWD/build/exec/TestLegendPlacement   # corner choice, SAME objects, moving from corners, text reduction
 $OLDPWD/build/exec/TestAxisLabelSpace    # right-edge clipping, corner overlap, exponent margins
 $OLDPWD/build/exec/TestLogAxisLabels
 </code></pre>

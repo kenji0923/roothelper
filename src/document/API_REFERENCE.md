@@ -178,12 +178,13 @@ void AdjustAxisLabelSpace(TAxis* x_axis, TAxis* y_axis);
 ### Legend placement
 
 ```cpp
-TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin);
-TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.0, double height = 0.0);
-TLegend* PlaceLegend(TLegend* leg, double margin = kLegendMargin, double text_size = GraphicsSize::current.text_size);
-TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin = kLegendMargin, double text_size = ...);
-LegendBox GetMaxLegendBox(LegendPosition corner, double margin = kLegendMargin, const TObject* ignore = nullptr);
-LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr);
+TLegend* PutLegend(Option_t* option = "", double margin = kLegendMargin, LegendBox* placement = nullptr);
+TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = "", double width = 0.0, double height = 0.0, LegendBox* placement = nullptr);
+TLegend* PlaceLegend(TLegend* leg, double margin = kLegendMargin, double text_size = ..., LegendBox* placement = nullptr, bool allow_shift = true);
+TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin = kLegendMargin, double text_size = ..., LegendBox* placement = nullptr, bool allow_shift = true);
+LegendBox FindLegendBox(double width, double height, double margin = kLegendMargin, const TObject* ignore = nullptr, bool allow_shift = true);
+LegendBox GetMaxLegendBox(LegendPosition corner, double margin = kLegendMargin, const TObject* ignore = nullptr, bool allow_shift = false);
+LegendBox FindMaxLegendBox(double margin = kLegendMargin, const TObject* ignore = nullptr, bool allow_shift = false);
 std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size);
 ```
 * **Occupancy**: all primitives of the active pad are rasterized, including objects drawn
@@ -191,14 +192,22 @@ std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size);
   texts and panes (`TPaveText`, other legends). Empty frame histograms are ignored.
 * **Margin**: `kLegendMargin = 0.02` of the pad height, kept from the frame and from every
   drawn object; the horizontal gap has the same physical length.
-* **`GetMaxLegendBox`**: largest-area free box anchored at the given corner.
-  **`FindMaxLegendBox`**: the corner with the largest such box.
-* **`PutLegend()` / `PlaceLegend`**: the legend is sized to its content (widest label, rows,
-  columns) at the target text size, which is not enlarged. Among corners where it fits, the
-  one with the most free area is chosen. Only when it fits nowhere is the text reduced, by
-  the smallest factor that fits the best corner.
-* **`PutLegend(corner)`**: same sizing restricted to one corner. Giving `width` and `height`
-  (> 0) keeps the former fixed-size behavior.
+* **`LegendBox`**: corner (`position`), NDC coordinates `x1, y1, x2, y2`, `shift` (NDC distance
+  moved from the corner along the vertical frame edge; 0 at the corner, `IsShifted()`) and
+  `text_scale` (1 unless the text had to be reduced).
+* **`GetMaxLegendBox` / `FindMaxLegendBox`**: largest-area free box at a corner / at the best
+  corner. With `allow_shift`, boxes moved down from top corners or up from bottom corners are
+  also considered and the coordinates show where the box is.
+* **Placement order** (`PutLegend()`, `PlaceLegend`, `FindLegendBox`): the legend is sized to its
+  content at the target text size, never enlarged.
+  1. A corner where it fits; the one with the most free area.
+  2. If no corner fits (e.g. lines along both the top and the bottom), the smallest move from
+     a corner along the frame edge (top corners down, bottom corners up) at which it fits.
+  3. Only if it fits nowhere, the text is reduced by the smallest factor, over all corners and
+     moves.
+  Pass `allow_shift = false` to skip step 2. `placement` receives the result.
+* **`PutLegend(corner)`**: same sizing restricted to one corner (moving along its edge is
+  allowed). Giving `width` and `height` (> 0) keeps the former fixed-size behavior.
 
 ---
 

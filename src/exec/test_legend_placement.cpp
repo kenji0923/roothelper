@@ -134,6 +134,44 @@ void TestFixedCorner() {
   c->Print("legend_corner.png");
 }
 
+void TestShiftFromCorner() {
+  // Lines near the top and the bottom leave only the middle free: no corner has room, so the
+  // legend moves down from a top corner (or up from a bottom one) instead of shrinking.
+  TCanvas* c = roothelper::CreateCanvas("c_shift", "c_shift");
+  TGraph* upper = MakeGraph("Upper line", [](double x) { return 9.0 + 0.05 * std::sin(x); });
+  TGraph* lower = MakeGraph("Lower line", [](double x) { return 1.0 + 0.05 * std::sin(x); });
+  upper->Draw("AL");
+  upper->SetMinimum(0.0);
+  upper->SetMaximum(10.0);
+  roothelper::SetAxes(upper);
+  lower->Draw("L SAME");
+
+  roothelper::LegendBox corner_box =
+      roothelper::FindMaxLegendBox(roothelper::kLegendMargin, nullptr, false);
+  roothelper::LegendBox placement;
+  TLegend* leg = roothelper::PutLegend("", roothelper::kLegendMargin, &placement);
+  std::printf(
+      "shift: corner max box height %.3f; legend at %s, shift %.3f, scale %.3f,"
+      " (%.3f, %.3f)-(%.3f, %.3f)\n",
+      corner_box.Height(), CornerName(placement.position), placement.shift, placement.text_scale,
+      placement.x1, placement.y1, placement.x2, placement.y2);
+  Check(placement.IsShifted(), "shift: legend was not moved from the corner");
+  Check(placement.text_scale == 1.0, "shift: text was reduced although moving fits");
+  Check(std::abs(leg->GetY2NDC() - placement.y2) < 1e-12 &&
+            std::abs(leg->GetX1NDC() - placement.x1) < 1e-12,
+        "shift: reported coordinates differ from the legend");
+  Check(!OverlapsGraph(leg, upper) && !OverlapsGraph(leg, lower), "shift: legend overlaps a line");
+
+  // With moving disabled the same legend must shrink.
+  roothelper::LegendBox no_shift;
+  roothelper::PlaceLegend(leg, roothelper::kLegendMargin,
+                          roothelper::GraphicsSize::current.text_size, &no_shift, false);
+  Check(!no_shift.IsShifted() && no_shift.text_scale < 1.0,
+        "shift: without moving the text was not reduced");
+  roothelper::PlaceLegend(leg);  // Restore the moved placement for the picture.
+  c->Print("legend_shift.png");
+}
+
 }  // namespace
 
 int main() {
@@ -143,6 +181,7 @@ int main() {
   TestSameObjects();
   TestShrinkText();
   TestFixedCorner();
+  TestShiftFromCorner();
   if (g_failures == 0) std::printf("Legend placement checks passed.\n");
   return g_failures == 0 ? 0 : 1;
 }

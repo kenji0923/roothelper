@@ -536,42 +536,58 @@ bool IsTop(LegendPosition corner) {
   return corner == LegendPosition::TopLeft || corner == LegendPosition::TopRight;
 }
 
-// Free height in cells for each box width in cells, for a box anchored at a corner.
-// heights[w - 1] is the height available for width w and is non-increasing.
-std::vector<int> GetFreeHeights(const OccupancyGrid& grid, LegendPosition corner, int inset_x,
-                                int inset_y) {
-  std::vector<int> heights;
-  int limit = grid.ny() - 2 * inset_y;
-  for (int c = inset_x; c < grid.nx() - inset_x; ++c) {
-    const int ix = IsRight(corner) ? grid.nx() - 1 - c : c;
-    int run = 0;
-    while (run < limit) {
-      const int r = inset_y + run;
-      if (grid.At(ix, IsTop(corner) ? grid.ny() - 1 - r : r)) break;
-      ++run;
+// Consecutive free cells from each row toward the opposite edge, with rows counted from
+// the top (from_top) or the bottom edge of the frame.
+class FreeRuns {
+ public:
+  FreeRuns(const OccupancyGrid& grid, bool from_top)
+      : nx_(grid.nx()), runs_(static_cast<size_t>(grid.nx()) * grid.ny(), 0) {
+    for (int ix = 0; ix < grid.nx(); ++ix) {
+      int run = 0;
+      for (int r = grid.ny() - 1; r >= 0; --r) {
+        const int iy = from_top ? grid.ny() - 1 - r : r;
+        run = grid.At(ix, iy) ? 0 : run + 1;
+        runs_[static_cast<size_t>(r) * nx_ + ix] = run;
+      }
     }
-    limit = run;
-    if (limit == 0) break;
-    heights.push_back(limit);
   }
-  return heights;
-}
 
+  int At(int ix, int r) const { return runs_[static_cast<size_t>(r) * nx_ + ix]; }
+
+ private:
+  int nx_;
+  std::vector<int> runs_;
+};
+
+// Free space of a box anchored at a corner and moved `offset` cells away from it along the
+// vertical frame edge (down for top corners, up for bottom corners).
 struct CornerSpace {
   LegendPosition corner;
   const OccupancyGrid* grid;
   int inset_x;
   int inset_y;
+  int offset;
+  // heights[w - 1] is the free height in cells for a width of w cells; non-increasing.
   std::vector<int> heights;
 
-  double CellWidthPixel() const { return grid->CellWidth() * PadWidthPixel(); }
-  double CellHeightPixel() const { return grid->CellHeight() * PadHeightPixel(); }
+  CornerSpace(LegendPosition c, const OccupancyGrid& g, const FreeRuns& runs, int ix0, int iy0,
+              int off)
+      : corner(c), grid(&g), inset_x(ix0), inset_y(iy0), offset(off) {
+    int limit = g.ny() - 2 * inset_y - offset;
+    for (int col = inset_x; col < g.nx() - inset_x && limit > 0; ++col) {
+      const int ix = IsRight(corner) ? g.nx() - 1 - col : col;
+      limit = std::min(limit, runs.At(ix, inset_y + offset));
+      if (limit == 0) break;
+      heights.push_back(limit);
+    }
+  }
 
   LegendBox Box(double width, double height) const {
     LegendBox box;
     box.position = corner;
+    box.shift = offset * grid->CellHeight();
     const double off_x = inset_x * grid->CellWidth();
-    const double off_y = inset_y * grid->CellHeight();
+    const double off_y = inset_y * grid->CellHeight() + box.shift;
     box.x1 = IsRight(corner) ? grid->x2() - off_x - width : grid->x1() + off_x;
     box.y1 = IsTop(corner) ? grid->y2() - off_y - height : grid->y1() + off_y;
     box.x2 = box.x1 + width;
@@ -616,77 +632,134 @@ constexpr LegendPosition kLegendCorners[] = {LegendPosition::TopRight, LegendPos
                                              LegendPosition::BottomRight,
                                              LegendPosition::BottomLeft};
 
-// Place a legend at the best of the given corners. The occupancy must exclude the legend.
-TLegend* PlaceLegendAtCorners(TLegend* leg, const std::vector<LegendPosition>& corners,
-                              double margin, double text_size) {
-  if (leg == nullptr || gPad == nullptr) return leg;
+const std::vector<LegendPosition>& AllCorners() {
+  static const std::vector<LegendPosition> corners(std::begin(kLegendCorners),
+                                                   std::end(kLegendCorners));
+  return corners;
+}
 
-  int inset_x = 0, inset_y = 0;
-  const OccupancyGrid grid = BuildOccupancy(margin, leg, inset_x, inset_y);
-  const auto [width, height] = GetLegendContentSize(leg, text_size);
+// Free space at the given corners and every allowed shift, built once per placement.
+class LegendSpaces {
+ public:
+  LegendSpaces(double margin, const TObject* ignore)
+      : grid_(BuildOccupancy(margin, ignore, inset_x_, inset_y_)),
+        top_runs_(grid_, true),
+        bottom_runs_(grid_, false) {}
 
-  const CornerSpace* best = nullptr;
-  std::vector<CornerSpace> spaces;
-  spaces.reserve(corners.size());
-  for (LegendPosition corner : corners) {
-    spaces.push_back(
-        {corner, &grid, inset_x, inset_y, GetFreeHeights(grid, corner, inset_x, inset_y)});
+  int MaxOffset() const { return std::max(0, grid_.ny() - 2 * inset_y_ - 1); }
+
+  CornerSpace At(LegendPosition corner, int offset) const {
+    return CornerSpace(corner, grid_, IsTop(corner) ? top_runs_ : bottom_runs_, inset_x_, inset_y_,
+                       offset);
   }
 
-  // Prefer corners where the content fits at full size, then the most free area.
-  double best_scale = -1.0;
-  double best_area = -1.0;
-  for (const CornerSpace& space : spaces) {
-    const double scale = space.FitScale(width, height);
-    const double area = space.MaxArea();
-    const bool better = (scale >= 1.0 && best_scale < 1.0) ||
-                        (scale >= 1.0 && best_scale >= 1.0 && area > best_area) ||
-                        (scale < 1.0 && best_scale < 1.0 && scale > best_scale);
-    if (best == nullptr || better) {
-      best = &space;
-      best_scale = scale;
-      best_area = area;
+ private:
+  // The insets are written by BuildOccupancy, so they are declared before the grid.
+  int inset_x_ = 0;
+  int inset_y_ = 0;
+  OccupancyGrid grid_;
+  FreeRuns top_runs_;
+  FreeRuns bottom_runs_;
+};
+
+// Placement of a width x height NDC box. Preference: a corner where it fits at full size
+// (most free area first); then, if allowed, the smallest shift at which it fits; then the
+// largest text scale over all corners and shifts.
+LegendBox FindPlacement(const LegendSpaces& spaces, const std::vector<LegendPosition>& corners,
+                        double width, double height, bool allow_shift) {
+  const int max_offset = allow_shift ? spaces.MaxOffset() : 0;
+
+  for (int offset = 0; offset <= max_offset; ++offset) {
+    const CornerSpace* best = nullptr;
+    std::vector<CornerSpace> candidates;
+    candidates.reserve(corners.size());
+    for (LegendPosition corner : corners) candidates.push_back(spaces.At(corner, offset));
+    double best_area = -1.0;
+    for (const CornerSpace& space : candidates) {
+      if (space.FitScale(width, height) < 1.0) continue;
+      const double area = space.MaxArea();
+      if (area > best_area) {
+        best_area = area;
+        best = &space;
+      }
+    }
+    if (best != nullptr) return best->Box(width, height);
+  }
+
+  // Nothing fits at full size: reduce the content as little as possible.
+  LegendBox best_box = spaces.At(corners.front(), 0).Box(width, height);
+  double best_scale = 0.0;
+  for (int offset = 0; offset <= max_offset; ++offset) {
+    for (LegendPosition corner : corners) {
+      const CornerSpace space = spaces.At(corner, offset);
+      const double scale = space.FitScale(width, height);
+      if (scale > best_scale) {
+        best_scale = scale;
+        best_box = space.Box(width * scale, height * scale);
+        best_box.text_scale = scale;
+      }
     }
   }
+  return best_box;
+}
 
-  // Nothing is free: fall back to the first corner at full size.
-  const double scale = best_scale > 0.0 ? best_scale : 1.0;
-  const LegendBox box = best->Box(width * scale, height * scale);
+LegendBox MaxBoxOver(const LegendSpaces& spaces, const std::vector<LegendPosition>& corners,
+                     bool allow_shift) {
+  LegendBox best;
+  double best_area = 0.0;
+  const int max_offset = allow_shift ? spaces.MaxOffset() : 0;
+  for (int offset = 0; offset <= max_offset; ++offset) {
+    for (LegendPosition corner : corners) {
+      const CornerSpace space = spaces.At(corner, offset);
+      const double area = space.MaxArea();
+      if (area > best_area) {
+        best_area = area;
+        best = space.MaxBox();
+      }
+    }
+  }
+  return best;
+}
+
+// Place a legend at the best of the given corners. The occupancy excludes the legend.
+TLegend* PlaceLegendAtCorners(TLegend* leg, const std::vector<LegendPosition>& corners,
+                              double margin, double text_size, bool allow_shift,
+                              LegendBox* placement) {
+  if (leg == nullptr || gPad == nullptr) return leg;
+
+  const LegendSpaces spaces(margin, leg);
+  const auto [width, height] = GetLegendContentSize(leg, text_size);
+  const LegendBox box = FindPlacement(spaces, corners, width, height, allow_shift);
 
   leg->SetX1NDC(box.x1);
   leg->SetY1NDC(box.y1);
   leg->SetX2NDC(box.x2);
   leg->SetY2NDC(box.y2);
-  leg->SetTextSize(text_size * scale);
+  leg->SetTextSize(text_size * box.text_scale);
   gPad->Modified();
+  if (placement != nullptr) *placement = box;
   return leg;
 }
 
 }  // namespace
 
-LegendBox GetMaxLegendBox(LegendPosition corner, double margin, const TObject* ignore) {
-  int inset_x = 0, inset_y = 0;
-  const OccupancyGrid grid = BuildOccupancy(margin, ignore, inset_x, inset_y);
-  const CornerSpace space{corner, &grid, inset_x, inset_y,
-                          GetFreeHeights(grid, corner, inset_x, inset_y)};
-  return space.MaxBox();
+LegendBox GetMaxLegendBox(LegendPosition corner, double margin, const TObject* ignore,
+                          bool allow_shift) {
+  return MaxBoxOver(LegendSpaces(margin, ignore), {corner}, allow_shift);
 }
 
-LegendBox FindMaxLegendBox(double margin, const TObject* ignore) {
-  int inset_x = 0, inset_y = 0;
-  const OccupancyGrid grid = BuildOccupancy(margin, ignore, inset_x, inset_y);
-  LegendBox best;
-  double best_area = -1.0;
-  for (LegendPosition corner : kLegendCorners) {
-    const CornerSpace space{corner, &grid, inset_x, inset_y,
-                            GetFreeHeights(grid, corner, inset_x, inset_y)};
-    const double area = space.MaxArea();
-    if (area > best_area) {
-      best_area = area;
-      best = space.MaxBox();
-    }
-  }
-  return best;
+LegendBox FindMaxLegendBox(double margin, const TObject* ignore, bool allow_shift) {
+  return MaxBoxOver(LegendSpaces(margin, ignore), AllCorners(), allow_shift);
+}
+
+LegendBox FindLegendBox(double width, double height, double margin, const TObject* ignore,
+                        bool allow_shift) {
+  return FindPlacement(LegendSpaces(margin, ignore), AllCorners(), width, height, allow_shift);
+}
+
+LegendBox FindLegendBox(LegendPosition corner, double width, double height, double margin,
+                        const TObject* ignore, bool allow_shift) {
+  return FindPlacement(LegendSpaces(margin, ignore), {corner}, width, height, allow_shift);
 }
 
 std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size) {
@@ -733,32 +806,33 @@ std::pair<double, double> GetLegendContentSize(TLegend* leg, double text_size) {
   return {width_px / w_px, height_px / h_px};
 }
 
-TLegend* PlaceLegend(TLegend* leg, double margin, double text_size) {
-  return PlaceLegendAtCorners(
-      leg, std::vector<LegendPosition>(std::begin(kLegendCorners), std::end(kLegendCorners)),
-      margin, text_size);
+TLegend* PlaceLegend(TLegend* leg, double margin, double text_size, LegendBox* placement,
+                     bool allow_shift) {
+  return PlaceLegendAtCorners(leg, AllCorners(), margin, text_size, allow_shift, placement);
 }
 
-TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin, double text_size) {
-  return PlaceLegendAtCorners(leg, {corner}, margin, text_size);
+TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, double margin, double text_size,
+                     LegendBox* placement, bool allow_shift) {
+  return PlaceLegendAtCorners(leg, {corner}, margin, text_size, allow_shift, placement);
 }
 
-TLegend* PutLegend(Option_t* option, double margin) {
+TLegend* PutLegend(Option_t* option, double margin, LegendBox* placement) {
   gPad->Update();
   TLegend* leg = gPad->BuildLegend(0.0, 0.0, 0.1, 0.1, "", option);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
-  return PlaceLegend(leg, margin);
+  return PlaceLegend(leg, margin, GraphicsSize::current.text_size, placement);
 }
 
-TLegend* PutLegend(LegendPosition leg_pos, Option_t* option, double width, double height) {
+TLegend* PutLegend(LegendPosition leg_pos, Option_t* option, double width, double height,
+                   LegendBox* placement) {
   gPad->Update();
 
   if (width <= 0.0 || height <= 0.0) {
     TLegend* leg = gPad->BuildLegend(0.0, 0.0, 0.1, 0.1, "", option);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
-    return PlaceLegend(leg, leg_pos);
+    return PlaceLegend(leg, leg_pos, kLegendMargin, GraphicsSize::current.text_size, placement);
   }
 
   const Double_t top_edge = 1.0 - gPad->GetTopMargin() - 0.02;
@@ -788,6 +862,13 @@ TLegend* PutLegend(LegendPosition leg_pos, Option_t* option, double width, doubl
 
   leg->SetBorderSize(0);
   leg->SetTextSize(GraphicsSize::current.text_size);
+  if (placement != nullptr) {
+    placement->position = leg_pos;
+    placement->x1 = leg->GetX1NDC();
+    placement->y1 = leg->GetY1NDC();
+    placement->x2 = leg->GetX2NDC();
+    placement->y2 = leg->GetY2NDC();
+  }
   return leg;
 }
 
