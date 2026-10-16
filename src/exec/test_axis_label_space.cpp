@@ -56,6 +56,27 @@ int main() {
     passed = false;
   }
 
+  // Short labels keep the divisions; five-character labels every 0.005 over 0.05 are reduced.
+  if (g->GetXaxis()->GetNdivisions() % 100 != 10) {
+    std::printf("FAIL: divisions of uncrowded labels changed (%d)\n",
+                g->GetXaxis()->GetNdivisions());
+    passed = false;
+  }
+  TCanvas* cd = roothelper::CreateCanvas("c_label_crowded", "c_label_crowded");
+  TGraph* gd = new TGraph();
+  gd->SetPoint(0, 0.709, 0.0);
+  gd->SetPoint(1, 0.759, 5.0);
+  gd->Draw("AL");
+  gd->GetXaxis()->SetLimits(0.709, 0.759);
+  roothelper::SetAxes(gd);
+  const int crowded_div = gd->GetXaxis()->GetNdivisions();
+  if (!(crowded_div % 100 < 10) || crowded_div / 100 != 5) {
+    std::printf("FAIL: crowded X divisions %d (want fewer primary, secondary kept)\n",
+                crowded_div);
+    passed = false;
+  }
+  cd->Print("axis_label_crowded.png");
+
   // Exponent factors: X needs room right of the frame, Y above it.
   struct ExponentCase {
     const char* name;

@@ -35,7 +35,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <cstddef>
 #include <iterator>
+#include <limits>
 #include <regex>
 #include <string>
 #include <utility>
@@ -1184,8 +1186,50 @@ constexpr double kSuperscriptLabelHeight = 0.85;
 constexpr double kLabelClearance = 0.15;
 // Gap between the axis end and the exponent factor, in label sizes.
 constexpr double kExponentGap = 0.1;
+// Minimum space between neighbouring tick labels, in text heights.
+constexpr double kMinLabelSpacing = 0.5;
+// Fewest primary divisions that crowded labels are reduced to.
+constexpr int kMinPrimaryDivisions = 2;
 // Distance per unit title offset, in title sizes along the axis direction.
 constexpr double kTitleOffsetUnit = 1.6;
+
+// Smallest space in pixels between neighbouring tick labels of an axis: along X between the
+// label boxes, along Y between the digit heights.
+double MinLabelSpacingPixel(TAxis* axis, bool is_y_axis, double axis_length_px,
+                            double text_px) {
+  const std::vector<TickLabel> labels = GetDrawnAxisLabels(axis, is_y_axis);
+  double min_spacing = std::numeric_limits<double>::infinity();
+  double previous_half = 0.0;
+  for (std::size_t i = 0; i < labels.size(); ++i) {
+    const double half = is_y_axis ? 0.5 * kDigitHeight * text_px
+                                  : 0.5 * LabelWidthPixel(axis, labels[i].text);
+    if (i > 0) {
+      const double distance = (labels[i].position - labels[i - 1].position) * axis_length_px;
+      min_spacing = std::min(min_spacing, distance - previous_half - half);
+    }
+    previous_half = half;
+  }
+  return min_spacing;
+}
+
+// Lowers the number of primary divisions of a linear, optimized axis with numeric labels until
+// neighbouring labels are kMinLabelSpacing text heights apart. Secondary and tertiary
+// divisions are kept.
+void ReduceCrowdedDivisions(TAxis* axis, bool is_y_axis, double axis_length_px, double text_px) {
+  const bool is_log = is_y_axis ? gPad->GetLogy() != 0 : gPad->GetLogx() != 0;
+  const int n_div = axis->GetNdivisions();
+  if (is_log || axis->GetLabels() != nullptr || axis->GetLabelSize() <= 0.0 || n_div <= 0) {
+    return;
+  }
+  const int finer = n_div - n_div % 100;
+  for (int n_primary = n_div % 100; n_primary > kMinPrimaryDivisions; --n_primary) {
+    if (MinLabelSpacingPixel(axis, is_y_axis, axis_length_px, text_px) >=
+        kMinLabelSpacing * text_px) {
+      return;
+    }
+    axis->SetNdivisions(finer + n_primary - 1);
+  }
+}
 
 }  // namespace
 
@@ -1193,6 +1237,14 @@ void AdjustAxisLabelSpace(TAxis* x_axis, TAxis* y_axis) {
   if (x_axis == nullptr || y_axis == nullptr || gPad == nullptr) return;
   // Axis ranges are needed to locate the labels.
   gPad->Update();
+
+  // Thin out crowded labels first; the checks below depend on which labels are drawn.
+  ReduceCrowdedDivisions(
+      x_axis, false, (1.0 - gPad->GetLeftMargin() - gPad->GetRightMargin()) * PadWidthPixel(),
+      TextHeightPixel(x_axis->GetLabelSize()));
+  ReduceCrowdedDivisions(
+      y_axis, true, (1.0 - gPad->GetBottomMargin() - gPad->GetTopMargin()) * PadHeightPixel(),
+      TextHeightPixel(y_axis->GetLabelSize()));
 
   const double w_px = PadWidthPixel();
   const double h_px = PadHeightPixel();

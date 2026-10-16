@@ -92,8 +92,17 @@ inspection (run from the repository root):</p>
 <pre><code>cmake -S src -B build &amp;&amp; cmake --build build -j
 mkdir -p /tmp/roothelper-check &amp;&amp; cd /tmp/roothelper-check
 $OLDPWD/build/exec/TestLegendPlacement   # corner choice, SAME objects, moving from corners, text reduction
-$OLDPWD/build/exec/TestAxisLabelSpace    # right-edge clipping, corner overlap, exponent margins
+$OLDPWD/build/exec/TestAxisLabelSpace    # right-edge clipping, corner overlap, exponent margins, crowded labels
 $OLDPWD/build/exec/TestLogAxisLabels
+</code></pre>
+<p>Crowded labels: <code>SetAxes</code> (through <code>AdjustAxisLabelSpace</code>) lowers the
+primary divisions of a linear numeric axis until neighbouring labels are half a text height
+apart, keeping the secondary divisions; e.g. 0.709&ndash;0.759 goes from 0.005 to 0.01 steps
+(510 &rarr; 509). Checked with ECDLcontrol <code>plot_report.C</code> run on a copy against a scratch
+install: only <code>c_dither</code> changed, and <code>c_hold_lock</code> needs no manual
+<code>SetNdivisions(505)</code>:</p>
+<pre><code>cp -r ~/work/development/ECDLcontrol /tmp/ecdl &amp;&amp; cd /tmp/ecdl
+ROOT_INCLUDE_PATH=&lt;prefix&gt;/include root -l -b -q plot_report.C
 </code></pre>
 </section>
 <section>

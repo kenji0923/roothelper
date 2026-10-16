@@ -315,7 +315,10 @@ void OptimizeYAxisLayout(TAxis* y_axis, double extra_label_shift = 0.0);
 /**
  * @brief Keep X and Y tick labels inside the pad and apart from each other.
  *
- * Widens the right margin when the last X label would be clipped at the pad edge. When the
+ * First lowers the number of primary divisions of a linear axis whose numeric labels are
+ * closer than half a text height to each other (secondary divisions are kept; set
+ * SetNdivisions afterwards to override). Widens the right margin when the last X label would
+ * be clipped at the pad edge. When the
  * first X label and the lowest Y label overlap at the bottom-left corner, moves the X labels
  * down and the Y labels left by the same distance, with titles and margins following.
  * Called by SetYAxis (and so SetAxes) after the axes are styled.
