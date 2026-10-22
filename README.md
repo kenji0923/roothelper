@@ -25,7 +25,7 @@
 
 Comprehensive references are provided in two formats:
 
-### 1. Developer Handbook ([API_REFERENCE.md](file:///home/kshu/work/development/ROOT_helper/src/document/API_REFERENCE.md))
+### 1. Developer Handbook ([API_REFERENCE.md](src/document/API_REFERENCE.md))
 A clean, guide-oriented Markdown manual describing the core architecture, submodule functions, classes, parameter definitions, directory hierarchies, and layout formulas.
 
 ### 2. Doxygen C++ API Manual (Interactive HTML)
@@ -51,7 +51,7 @@ Fully detailed, interactive class and namespace documentation generated directly
 
 ## Utility Scripts (`script/`)
 
-To support development, testing, and system integration, `roothelper` includes the following scripts under the [script/](file:///home/kshu/work/development/ROOT_helper/script) directory:
+To support development, testing, and system integration, `roothelper` includes the following scripts under the [script/](script/) directory:
 
 * **`rooti`**: A Python command-line wrapper to execute ROOT macro scripts with dynamic argument type inference. It parses list structures, booleans, numbers, and strings from shell inputs, formatting a C++ invocation call like `script_path(arg1, arg2, ...)` and executing ROOT in batch mode (via `root -b -q`).
 * **`CreateRootClangd`**: Automatically creates a local `.clangd` file containing ROOT compilation flags derived from `root-config --cflags`. This resolves ROOT symbols and headers correctly for clangd-based Language Server Protocol (LSP) configurations.
