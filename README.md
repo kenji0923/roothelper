@@ -70,30 +70,34 @@ Include the unified header file in your code:
 
 ### Installation
 ```bash
-cmake -S src -B build -DCMAKE_INSTALL_PREFIX=$HOME/.local
+cmake -S src -B build -DCMAKE_INSTALL_PREFIX=$HOME/opt/roothelper
 cmake --build build -j
 cmake --install build
 ```
-This also installs the scripts in `script/` to `<prefix>/bin`; add it to `PATH` to use them.
-It also installs the base 14 substitute fonts in `font/` (URW base 35, the ones ghostscript uses; AGPL-3.0 with a font exception) to `<prefix>/share/roothelper/fonts`, and a fontconfig file that uses them instead of Helvetica, Times, Courier, Symbol and Zapf Dingbats. Enable it with `ln -s <prefix>/share/roothelper/fontconfig/99-roothelper-fonts.conf ~/.config/fontconfig/conf.d/`.
+The last step ends by printing the one-time user setup for the chosen prefix, marking steps already done:
+```bash
+cat <prefix>/share/roothelper/setup/bashrc >> ~/.bashrc       # PATH, ROOT_INCLUDE_PATH, CMAKE_PREFIX_PATH
+cp <prefix>/share/roothelper/setup/rootlogon.C ~/.rootlogon.C  # only for ACLiC (macro.C+)
+mkdir -p ~/.config/fontconfig/conf.d && ln -sf <prefix>/share/roothelper/fontconfig/99-roothelper-fonts.conf ~/.config/fontconfig/conf.d/
+```
+The templates `setup/bashrc` and `setup/rootlogon.C` are generated from `src/cmake/*.in` with the prefix filled in.
+The installation also puts the scripts in `script/` to `<prefix>/bin`.
+It also installs the base 14 substitute fonts in `font/` (URW base 35, the ones ghostscript uses; AGPL-3.0 with a font exception) to `<prefix>/share/roothelper/fonts`, and a fontconfig file that uses them instead of Helvetica, Times, Courier, Symbol and Zapf Dingbats. Enable it with the third setup step above.
 
 ### CMake Setup
-Configure your project with `-DCMAKE_PREFIX_PATH=$HOME/.local`, then:
+With the shell setup (or `-DCMAKE_PREFIX_PATH=<prefix>`):
 ```cmake
 find_package(roothelper REQUIRED)
 target_link_libraries(YourExecutable PRIVATE roothelper::RootHelper)
 ```
 
 ### ROOT Macros
-Library mode (recommended): the installed header loads the compiled libraries itself.
-```bash
-export ROOT_INCLUDE_PATH=$HOME/.local/include:$ROOT_INCLUDE_PATH
-```
+Library mode (recommended): with `ROOT_INCLUDE_PATH` from the shell setup, the installed header loads the compiled libraries itself.
 ```cpp
 #include <roothelper/roothelper.h>   // about 0.2 s instead of 1.6 s for source mode
 ```
-For ACLiC (`root macro.C+`), also load the libraries at startup, as in
-[src/auxiliary/rootlogon.C](src/auxiliary/rootlogon.C).
+For ACLiC (`root macro.C+`), also load the libraries at startup with the generated `~/.rootlogon.C`
+([src/cmake/rootlogon.C.in](src/cmake/rootlogon.C.in)).
 Source mode compiles the sources in the interpreter and needs no libraries:
 `#include <roothelper/roothelper_source.h>`, or `#include "roothelper.h"` with the
 repository root in `ROOT_INCLUDE_PATH`.

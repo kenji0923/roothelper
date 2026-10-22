@@ -64,4 +64,56 @@ else()
         FILES ${CMAKE_CURRENT_BINARY_DIR}/roothelperConfig.cmake
         DESTINATION ${ROOTHELPER_CMAKE_DIR}
     )
+
+    # Shell and ROOT startup templates for this prefix, and a summary of the one-time user
+    # setup printed at the end of the installation.
+    install(CODE "
+        set(ROOTHELPER_PREFIX \"\${CMAKE_INSTALL_PREFIX}\")
+        set(ROOTHELPER_INCLUDEDIR \"${CMAKE_INSTALL_INCLUDEDIR}\")
+        set(setup_dir \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/setup\")
+        foreach(name bashrc rootlogon.C)
+            message(STATUS \"Installing: \${setup_dir}/\${name}\")
+            configure_file(\"${PROJECT_SOURCE_DIR}/cmake/\${name}.in\"
+                           \"\$ENV{DESTDIR}\${setup_dir}/\${name}\" @ONLY)
+        endforeach()
+        set(font_conf \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/fontconfig/99-roothelper-fonts.conf\")
+
+        # Mark the steps that the current user has already done.
+        set(bashrc_done \"\")
+        if(EXISTS \"\$ENV{HOME}/.bashrc\")
+            file(READ \"\$ENV{HOME}/.bashrc\" text)
+            # Also accept the prefix written with $HOME.
+            string(REPLACE \"\$ENV{HOME}/\" \"\\\$HOME/\" home_prefix \"\${ROOTHELPER_PREFIX}\")
+            string(FIND \"\${text}\" \"\${ROOTHELPER_PREFIX}/bin\" found)
+            string(FIND \"\${text}\" \"\${home_prefix}/bin\" found_home)
+            if(NOT found EQUAL -1 OR NOT found_home EQUAL -1)
+                set(bashrc_done \"  (done)\")
+            endif()
+        endif()
+        set(rootlogon_done \"\")
+        if(EXISTS \"\$ENV{HOME}/.rootlogon.C\")
+            file(READ \"\$ENV{HOME}/.rootlogon.C\" text)
+            string(FIND \"\${text}\" \"roothelper\" found)
+            if(NOT found EQUAL -1)
+                set(rootlogon_done \"  (done)\")
+            endif()
+        endif()
+        set(font_done \"\")
+        set(font_link \"\$ENV{HOME}/.config/fontconfig/conf.d/99-roothelper-fonts.conf\")
+        if(IS_SYMLINK \"\${font_link}\")
+            file(READ_SYMLINK \"\${font_link}\" target)
+            if(target STREQUAL font_conf)
+                set(font_done \"  (done)\")
+            endif()
+        endif()
+        message(\"
+roothelper is installed in \${ROOTHELPER_PREFIX}. One-time setup for each user:
+  1. Shell (PATH, ROOT_INCLUDE_PATH, CMAKE_PREFIX_PATH)\${bashrc_done}:
+       cat \${setup_dir}/bashrc >> ~/.bashrc
+  2. ROOT startup, needed only for ACLiC (macro.C+)\${rootlogon_done}:
+       cp \${setup_dir}/rootlogon.C ~/.rootlogon.C
+  3. Base 14 substitute fonts for Inkscape and PDF viewers\${font_done}:
+       mkdir -p ~/.config/fontconfig/conf.d && ln -sf \${font_conf} ~/.config/fontconfig/conf.d/
+\")
+    ")
 endif()

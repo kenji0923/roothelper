@@ -64,8 +64,21 @@ libraries <code>libroothelper_{graphics,container,data_saver,analysis}.so</code>
 the header loads the libraries; no <code>gROOT</code> or <code>gSystem</code> call is needed.
 For ACLiC (<code>root macro.C+</code>) also load the libraries at startup with
 <code>gROOT-&gt;ProcessLine("#include &lt;roothelper/cling_libraries.h&gt;")</code> in
-<code>~/.rootlogon.C</code> (see <code>src/auxiliary/rootlogon.C</code>); otherwise loading the
-compiled macro fails with an undefined <code>roothelper::GraphicsSize::current</code>.</p>
+<code>~/.rootlogon.C</code>; otherwise loading the compiled macro fails with an undefined
+<code>roothelper::GraphicsSize::current</code>.</p>
+<p>User setup templates: <code>cmake --install</code> writes <code>&lt;prefix&gt;/share/roothelper/setup/bashrc</code>
+and <code>setup/rootlogon.C</code> from <code>src/cmake/bashrc.in</code> and <code>rootlogon.C.in</code>
+with absolute paths of the prefix, then prints the setup commands (append the bashrc, copy the
+rootlogon, link the fontconfig file), marking with "(done)" what <code>~/.bashrc</code>,
+<code>~/.rootlogon.C</code> and <code>~/.config/fontconfig/conf.d</code> already have.
+Check (purpose: the templates alone make macros, ACLiC and the scripts work) with an empty home:</p>
+<pre><code>cmake --install build --prefix /tmp/rh
+mkdir /tmp/home5 &amp;&amp; cp /tmp/rh/share/roothelper/setup/rootlogon.C /tmp/home5/.rootlogon.C
+cp /tmp/rh/share/roothelper/setup/bashrc /tmp/home5/.bashrc
+env -i HOME=/tmp/home5 PATH=/usr/bin:/bin bash -c '. /usr/local/root/bin/thisroot.sh; . ~/.bashrc
+  command -v ProcessPDF; root -l -b -q m.C; root -l -b -q m.C+'
+</code></pre>
+<p>Result: all three work; without <code>.rootlogon.C</code> ACLiC fails at link time.</p>
 <p>Source mode (no libraries, slower): <code>#include &lt;roothelper/roothelper_source.h&gt;</code>.
 After changing headers, check that this mode still compiles, since include order matters
 there (run from a directory holding a macro <code>m.C</code> that includes the header):</p>
