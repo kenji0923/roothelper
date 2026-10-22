@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['objectlist_0',['ObjectList',['../classroothelper_1_1ObjectList.html',1,'roothelper']]]
+  ['multiobject_0',['MultiObject',['../classroothelper_1_1MultiObject.html',1,'roothelper']]]
 ];

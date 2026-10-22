@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['increaseleftmargin_0',['IncreaseLeftMargin',['../namespaceroothelper.html#ae4c8c774962f1499f35efc73a869591c',1,'roothelper']]],
-  ['increaserightmargin_1',['IncreaseRightMargin',['../namespaceroothelper.html#a73df313bba126fa6f89284d69d014933',1,'roothelper']]],
-  ['increasetopmargin_2',['IncreaseTopMargin',['../namespaceroothelper.html#ac22c62a3746962ed267be03a4ce2adfa',1,'roothelper']]]
+  ['findlegendbox_0',['FindLegendBox',['../namespaceroothelper.html#a66c138a7afa5a716d5cce5228890969d',1,'roothelper']]],
+  ['findmaxlegendbox_1',['FindMaxLegendBox',['../namespaceroothelper.html#adbf8ac2d29399053ea0fef8729f67707',1,'roothelper']]]
 ];

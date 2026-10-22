@@ -194,17 +194,45 @@ Styling &amp; Axis Solvers</h2>
 <div class="fragment"><div class="line"><span class="keywordtype">void</span> SetAxes(GraphType* graph_object, Option_t* draw_option = <span class="stringliteral">&quot;&quot;</span>);</div>
 </div><!-- fragment --><ul>
 <li><b>Purpose</b>: High-level routine that styles the X, Y, and Z axes on a graph/histogram and calls layout optimizations.</li>
+<li><b>Compiled instantiations</b>: <code>SetXAxis</code>, <code>SetYAxis</code>, <code>SetZAxis</code> and <code>SetAxes</code> are compiled into the library for the types in <code>ROOTHELPER_FOR_EACH_AXIS_TYPE</code> (TGraph, TGraphErrors, TGraphAsymmErrors, TH1, TH1F, TH1D, TH1I, TH2, TH2F, TH2D, TH2I, TProfile, TMultiGraph, THStack, TGraph2D) and declared <code>extern template</code>, so callers and the ROOT interpreter use them without instantiating. Other types are instantiated as usual.</li>
 </ul>
 <p><code>SetXAxis</code> and <code>SetYAxis</code> detect log scaling on the active pad and use a label offset of <code>-0.010</code> for that axis to reduce the label gap. Linear axes use the corresponding <code>gStyle</code> label offset. Set the pad's log flags before styling; restyle after changing them. This is not a repaint callback. See <a href="../../doc/command.html">usage and verification commands</a>.</p>
-<div class="fragment"><div class="line"><span class="keywordtype">void</span> OptimizeYAxisLayout(TAxis* y_axis);</div>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> OptimizeYAxisLayout(TAxis* y_axis, <span class="keywordtype">double</span> extra_label_shift = 0.0);</div>
 </div><!-- fragment --><ul>
-<li><b>Purpose</b>: Solves the Y-axis label width dynamically and applies a constant-gap offset formula: <code>title_offset = (distance_from_axis / title_size) * 0.60 + 0.20</code> This ensures the visual gap between labels and the Y-axis title remains perfectly consistent.</li>
+<li><b>Purpose</b>: Solves the Y-axis label width dynamically and applies a constant-gap offset formula: <code>title_offset = (distance_from_axis / title_size) * 0.60 + 0.20</code> This ensures the visual gap between labels and the Y-axis title remains perfectly consistent. <code>extra_label_shift</code> (NDC) adds to the distance when the labels were moved away from the axis.</li>
+</ul>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> AdjustAxisLabelSpace(TAxis* x_axis, TAxis* y_axis);</div>
+</div><!-- fragment --><ul>
+<li><b>Purpose</b>: Called by <code>SetYAxis</code> (and so <code>SetAxes</code>). Widens the right margin when the last X label would be clipped at the pad edge. When the first X label and the lowest Y label overlap at the bottom-left corner, moves X labels down and Y labels left by the same distance; the X title, bottom margin and Y title follow. When TGaxis draws an exponent factor (<code>x10^{n}</code>, same decision rule as TGaxis including <code>SetMaxDigits</code> and <code>gStyle-&gt;SetExponentOffset</code>), widens the right margin for the X factor right of the axis end and sets the top margin for the Y factor above the axis (replacing the former fixed 0.085). Label positions follow TGaxis geometry for linear and log axes (font 42).</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md18"></a>
+Legend placement</h2>
+<div class="fragment"><div class="line">TLegend* PutLegend(Option_t* option = <span class="stringliteral">&quot;&quot;</span>, <span class="keywordtype">double</span> margin = kLegendMargin, LegendBox* placement = <span class="keyword">nullptr</span>);</div>
+<div class="line">TLegend* PutLegend(LegendPosition leg_pos, Option_t* option = <span class="stringliteral">&quot;&quot;</span>, <span class="keywordtype">double</span> width = 0.0, <span class="keywordtype">double</span> height = 0.0, LegendBox* placement = <span class="keyword">nullptr</span>);</div>
+<div class="line">TLegend* PlaceLegend(TLegend* leg, <span class="keywordtype">double</span> margin = kLegendMargin, <span class="keywordtype">double</span> text_size = ..., LegendBox* placement = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> allow_shift = <span class="keyword">true</span>);</div>
+<div class="line">TLegend* PlaceLegend(TLegend* leg, LegendPosition corner, <span class="keywordtype">double</span> margin = kLegendMargin, <span class="keywordtype">double</span> text_size = ..., LegendBox* placement = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> allow_shift = <span class="keyword">true</span>);</div>
+<div class="line">LegendBox FindLegendBox(<span class="keywordtype">double</span> width, <span class="keywordtype">double</span> height, <span class="keywordtype">double</span> margin = kLegendMargin, <span class="keyword">const</span> TObject* ignore = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> allow_shift = <span class="keyword">true</span>);</div>
+<div class="line">LegendBox GetMaxLegendBox(LegendPosition corner, <span class="keywordtype">double</span> margin = kLegendMargin, <span class="keyword">const</span> TObject* ignore = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> allow_shift = <span class="keyword">false</span>);</div>
+<div class="line">LegendBox FindMaxLegendBox(<span class="keywordtype">double</span> margin = kLegendMargin, <span class="keyword">const</span> TObject* ignore = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> allow_shift = <span class="keyword">false</span>);</div>
+<div class="line">std::pair&lt;double, double&gt; GetLegendContentSize(TLegend* leg, <span class="keywordtype">double</span> text_size);</div>
+</div><!-- fragment --><ul>
+<li><b>Occupancy</b>: all primitives of the active pad are rasterized, including objects drawn with <code>SAME</code>, members of <code>TMultiGraph</code>/<code>THStack</code>, fit functions, lines, boxes, markers, texts and panes (<code>TPaveText</code>, other legends). Empty frame histograms are ignored.</li>
+<li><b>Margin</b>: <code>kLegendMargin = 0.02</code> of the pad height, kept from the frame and from every drawn object; the horizontal gap has the same physical length.</li>
+<li>**<code>LegendBox</code>**: corner (<code>position</code>), NDC coordinates <code>x1, y1, x2, y2</code>, <code>shift</code> (NDC distance moved from the corner along the vertical frame edge; 0 at the corner, <code>IsShifted()</code>) and <code>text_scale</code> (1 unless the text had to be reduced).</li>
+<li>**<code>GetMaxLegendBox</code> / <code>FindMaxLegendBox</code>**: largest-area free box at a corner / at the best corner. With <code>allow_shift</code>, boxes moved down from top corners or up from bottom corners are also considered and the coordinates show where the box is.</li>
+<li><b>Placement order</b> (<code>PutLegend()</code>, <code>PlaceLegend</code>, <code>FindLegendBox</code>): the legend is sized to its content at the target text size, never enlarged.<ol type="1">
+<li>A corner where it fits; the one with the most free area.</li>
+<li>If no corner fits (e.g. lines along both the top and the bottom), the smallest move from a corner along the frame edge (top corners down, bottom corners up) at which it fits.</li>
+<li>Only if it fits nowhere, the text is reduced by the smallest factor, over all corners and moves. Pass <code>allow_shift = false</code> to skip step 2. <code>placement</code> receives the result.</li>
+</ol>
+</li>
+<li>**<code>PutLegend(corner)</code>**: same sizing restricted to one corner (moving along its edge is allowed). Giving <code>width</code> and <code>height</code> (&gt; 0) keeps the former fixed-size behavior.</li>
 </ul>
 <hr  />
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md20"></a>
 5. Utility Scripts (&lt;tt&gt;script/&lt;/tt&gt;)</h1>
 <p>The repository includes helper scripts to streamline the development cycle and integrate WSL with Windows environments.</p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 &lt;tt&gt;rooti&lt;/tt&gt; (Python Wrapper for Macro Runs)</h2>
 <p>A CLI script that automates type inference and formatting for ROOT macro parameters.</p><ul>
 <li><b>Usage</b>: <code>rooti [-nb] [-nq] &lt;script.cpp&gt; [macro_args...]</code></li>
@@ -214,7 +242,7 @@ Styling &amp; Axis Solvers</h2>
 </ul>
 </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md21"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 &lt;tt&gt;CreateRootClangd&lt;/tt&gt; (Language Server Protocol Setup)</h2>
 <p>A bash helper to configure <code>.clangd</code> local compiler flags for code intelligence.</p><ul>
 <li><b>Usage</b>: Run <code>./CreateRootClangd</code> in the project root directory.</li>
@@ -224,7 +252,7 @@ Styling &amp; Axis Solvers</h2>
 </ul>
 </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md22"></a>
+<h2><a class="anchor" id="autotoc_md23"></a>
 &lt;tt&gt;open_root_browser.bat&lt;/tt&gt; (Windows-WSL File Association)</h2>
 <p>A Windows Batch file mapping local files to the WSL environment.</p><ul>
 <li><b>Usage</b>: Associate <code>.root</code> files in Windows Explorer to open using this batch script.</li>

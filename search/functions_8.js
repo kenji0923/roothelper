@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['saveobject_0',['SaveObject',['../classroothelper_1_1DataSaver.html#a090e3db8b311cdc8e51dc9ad5cffac58',1,'roothelper::DataSaver']]],
-  ['scalehistox_1',['ScaleHistoX',['../namespaceroothelper.html#ab4ca80c60e5e059dfdfadd38dd406d6f',1,'roothelper']]],
-  ['setxaxis_2',['SetXAxis',['../namespaceroothelper.html#a97857b1eb25d67fdfd7bcba596c72972',1,'roothelper']]],
-  ['setyaxis_3',['SetYAxis',['../namespaceroothelper.html#a3e325e3d5cd80a298ed7845fea292f5e',1,'roothelper']]]
+  ['objectlist_0',['ObjectList',['../classroothelper_1_1ObjectList.html#aeddcf862b69319e4a73318f8b6113d93',1,'roothelper::ObjectList']]],
+  ['optimizeyaxislayout_1',['OptimizeYAxisLayout',['../namespaceroothelper.html#a73bc36f1db8478cdc4a1a1595d45bfdb',1,'roothelper']]]
 ];

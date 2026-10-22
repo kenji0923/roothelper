@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['multiobject_0',['multiobject',['../classroothelper_1_1MultiObject.html#a9729ce6af8ad2cc7f7c5fd76d2011bc5',1,'roothelper::MultiObject::MultiObject(MultiObjectType object_type, const std::string &amp;nametitle, TDirectory *directory, const std::vector&lt; std::string &gt; &amp;object_name, const std::string &amp;add_option=&quot;&quot;)'],['../classroothelper_1_1MultiObject.html#a3ecfff35bc9ddb913283b6f5cbf70e1c',1,'roothelper::MultiObject::MultiObject(MultiObjectType object_type, const std::string &amp;nametitle, std::vector&lt; TObject * &gt; obj_list, const std::string &amp;add_option=&quot;&quot;)']]]
+  ['increaseleftmargin_0',['IncreaseLeftMargin',['../namespaceroothelper.html#ae4c8c774962f1499f35efc73a869591c',1,'roothelper']]],
+  ['increaserightmargin_1',['IncreaseRightMargin',['../namespaceroothelper.html#a73df313bba126fa6f89284d69d014933',1,'roothelper']]],
+  ['increasetopmargin_2',['IncreaseTopMargin',['../namespaceroothelper.html#ac22c62a3746962ed267be03a4ce2adfa',1,'roothelper']]]
 ];
