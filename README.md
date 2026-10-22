@@ -81,7 +81,7 @@ cp <prefix>/share/roothelper/setup/rootlogon.C ~/.rootlogon.C  # only for ACLiC 
 mkdir -p ~/.config/fontconfig/conf.d && ln -sf <prefix>/share/roothelper/fontconfig/99-roothelper-fonts.conf ~/.config/fontconfig/conf.d/
 ```
 The templates `setup/bashrc` and `setup/rootlogon.C` are generated from `src/cmake/*.in` with the prefix filled in.
-The installation also puts the scripts in `script/` to `<prefix>/bin`.
+The installation also puts the scripts in `script/` to `<prefix>/bin`, and this README, `doc/command.html` and `src/document/API_REFERENCE.md` to `<prefix>/share/doc/roothelper`.
 It also installs the base 14 substitute fonts in `font/` (URW base 35, the ones ghostscript uses; AGPL-3.0 with a font exception) to `<prefix>/share/roothelper/fonts`, and a fontconfig file that uses them instead of Helvetica, Times, Courier, Symbol and Zapf Dingbats. Enable it with the third setup step above.
 
 ### CMake Setup

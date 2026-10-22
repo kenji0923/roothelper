@@ -24,6 +24,14 @@ include(GNUInstallDirs)
 file(GLOB ROOTHELPER_SCRIPTS CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/../script/*)
 install(PROGRAMS ${ROOTHELPER_SCRIPTS} DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# Usage documents, readable with only the installation present.
+install(
+    FILES ${PROJECT_SOURCE_DIR}/../README.md
+          ${PROJECT_SOURCE_DIR}/../doc/command.html
+          ${PROJECT_SOURCE_DIR}/document/API_REFERENCE.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+)
+
 # Substitutes for the PDF base 14 fonts (../font) and a fontconfig file that uses them in
 # place of Helvetica, Times, Courier, Symbol and Zapf Dingbats. The file is written at
 # installation time so that "cmake --install --prefix" gives the right font directory.
@@ -107,7 +115,9 @@ else()
             endif()
         endif()
         message(\"
-roothelper is installed in \${ROOTHELPER_PREFIX}. One-time setup for each user:
+roothelper is installed in \${ROOTHELPER_PREFIX}.
+Documents (README, API reference, commands): \${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}
+One-time setup for each user:
   1. Shell (PATH, ROOT_INCLUDE_PATH, CMAKE_PREFIX_PATH)\${bashrc_done}:
        cat \${setup_dir}/bashrc >> ~/.bashrc
   2. ROOT startup, needed only for ACLiC (macro.C+)\${rootlogon_done}:
